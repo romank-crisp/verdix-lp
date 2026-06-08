@@ -24,21 +24,25 @@
       --color-blue-600: #184C8F;
       --color-white: #FFFFFF;
       --color-blue-200: #A9DAFF;
-      --grid-size: 56px;
+      --grid-size: 40px;
       --mx: 50%;
       --my: 50%;
     }
 
     html, body {
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100dvh;       /* dynamic viewport height — handles iOS URL bar */
       overflow: hidden;
       background: transparent;
       color: var(--color-white);
       font-family: "DM Sans", system-ui, -apple-system, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
-    html { background: #465B6C; }
+    /* Fallback for browsers without dvh support */
+    @supports not (height: 100dvh) {
+      html, body { height: 100vh; }
+    }
+    html { background: #00335A; }
 
     /* ─── Background gradient ─── */
     .bg {
@@ -82,28 +86,31 @@
       /* Padding is exactly 1 grid cell on every side → content starts on a grid line */
       padding: var(--grid-size);
       display: grid;
-      grid-template-rows: var(--grid-size) 1fr auto;
+      grid-template-rows: auto 1fr auto;
+      grid-template-columns: minmax(0, 1fr);   /* prevents content from forcing column wider */
       gap: clamp(16px, 2vw, 24px);
     }
 
-    /* ─── Header (sits in row 1, exactly 1 grid cell tall) ─── */
+    /* ─── Header (auto-height to fit the larger logo) ─── */
     .header {
-      height: var(--grid-size);
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
-    .logo svg { display: block; width: clamp(120px, 11vw, 161px); height: auto; max-height: 100%; }
+    .logo svg { display: block; width: clamp(180px, 18vw, 322px); height: auto; }
 
 
     /* ─── Headline ─── */
     .headline-wrap {
       align-self: center;
-      width: 100%;
+      width: 60vw;
+      max-width: 60vw;
+      min-width: 0;        /* allow shrinking below intrinsic word width */
     }
     h1 {
       font-family: "DM Sans", sans-serif;
       font-weight: 300;
+      overflow-wrap: break-word;
       /* Per Figma spec: letter-spacing -8.646/172.929 ≈ -0.05em,
          line-height 157.443/172.929 ≈ 0.91 — proportional, so they scale
          with font-size at every viewport. */
@@ -162,12 +169,11 @@
       .cta:hover { box-shadow: none; }
     }
 
-    /* Mid-size laptops & older displays — pull header + CTA in a notch
-       so the page feels balanced when the viewport is below 1300px wide. */
-    @media (max-width: 1300px) {
-      .logo svg { width: clamp(108px, 9vw, 138px); }
-      .header  { height: 48px; }
-      .page    { padding: 48px; grid-template-rows: 48px 1fr auto; }
+    /* Mid-size laptops (incl. MacBook 14" at default scaling ≈ 1512px) —
+       pull header + CTA in a notch so the page feels balanced. */
+    @media (max-width: 1600px) {
+      .logo svg { width: clamp(216px, 18vw, 276px); }
+      .page    { padding: 32px; grid-template-rows: auto 1fr auto; }
       .cta {
         font-size: clamp(15px, min(1.35vw, 2.1vh), 21px);
         padding:   clamp(16px, min(1.9vw, 2.7vh), 28px)
@@ -184,12 +190,22 @@
        the right column on smaller laptops & tablets. Every Figma value is
        scaled by 0.7 from the default 1.5× spec (= ~1.05× the original).
        The page headline also shrinks ~25% so the proportion stays right. */
-    @media (max-width: 1200px) {
-      h1 { font-size: clamp(32px, min(9.5vw, 16vh), 160px); }
+    @media (max-width: 1600px) {
+      /* Cap headline at 100px below the breakpoint */
+      h1 { font-size: clamp(32px, min(7vw, 12vh), 100px); }
     }
 
     @media (max-width: 720px) {
       .footer { gap: 16px; }
+      /* Mobile: H1 doubles in size and spans full width */
+      h1 { font-size: clamp(48px, 14vw, 96px); }
+      .headline-wrap { width: 100%; max-width: 100%; }
+      /* Smaller logo on mobile so it doesn't dominate */
+      .logo svg { width: clamp(140px, 38vw, 200px); }
+      .page { padding: 20px; gap: 12px; }
+      /* Allow the subtitle to wrap naturally on mobile */
+      .subtitle { width: 100%; max-width: 100%; font-size: clamp(15px, 4.2vw, 20px); }
+      .subtitle-line { white-space: normal; display: inline; }
     }
 
     /* ─── Impression cards (floating testimonials, top-most layer) ─── */
@@ -242,21 +258,19 @@
     /* Card scaling — placed AFTER the base .impression-card rule so the
        media-query overrides actually win (CSS source order with equal
        specificity). */
-    @media (max-width: 1200px) {
+    @media (max-width: 1600px) {
+      /* Cards 30% smaller than default full-HD values (every Figma×1.5 value × 0.7) */
       .impression-card {
-        width: clamp(300px, 38vw, 401px);
-        padding: clamp(34px, 4.5vw, 54.4px)
-                 clamp(26px, 3.5vw, 42.5px)
-                 clamp(32px, 4.2vw, 50.4px)
-                 clamp(20px, 2.8vw, 33.2px);
-        gap: clamp(36px, 5vw, 61px);
-        border-radius: clamp(16px, 1.9vw, 22.5px);
+        width: 401px;
+        padding: 54.4px 42.5px 50.4px 33.2px;
+        gap: 61px;
+        border-radius: 22.5px;
         -webkit-backdrop-filter: blur(8.5px);
                 backdrop-filter: blur(8.5px);
       }
-      .impression-quote { font-size: clamp(15px, 1.7vw, 20px); line-height: 1.4; }
-      .impression-name  { font-size: clamp(14px, 1.45vw, 17px); }
-      .impression-title { font-size: clamp(12px, 1.25vw, 15px); }
+      .impression-quote { font-size: 20px; line-height: 1.4; }
+      .impression-name  { font-size: 17px; }
+      .impression-title { font-size: 15px; }
     }
     @media (max-width: 720px) {
       /* Cap to 340px so the card doesn't balloon when 88vw exceeds it on tablets */
@@ -529,19 +543,20 @@
         const realW = cardRect.width  || CARD_W;
         const realH = cardRect.height || CARD_H;
 
-        // Confine x to the right half, leaving the card's own width in mind.
-        const rightHalfStart = vw * 0.50;
-        const rightHalfEnd   = Math.max(rightHalfStart + 20, vw - realW - 24);
-        const lane = gsap.utils.random(rightHalfStart, rightHalfEnd);
+        const isMobile = vw <= 720;
 
-        // Pick a vertical band that none of the currently-alive cards are using,
-        // so multiple cards on screen don't pile on top of each other.
-        // Widened ranges + an extra jitter so consecutive cards in the same
-        // band still land at meaningfully different Y positions.
-        const BANDS = [
-          { yMin: vh * 0.02, yMax: vh * 0.22 },  // top
-          { yMin: vh * 0.30, yMax: vh * 0.50 },  // middle
-        ];
+        // Pick a band that's free so multiple cards don't pile on top of each other.
+        // On desktop the bands are vertical positions (cards rise upward);
+        // on mobile they're vertical positions but the motion is horizontal.
+        const BANDS = isMobile
+          ? [
+              { yMin: vh * 0.30, yMax: vh * 0.42 },  // upper
+              { yMin: vh * 0.50, yMax: vh * 0.62 },  // lower
+            ]
+          : [
+              { yMin: vh * 0.02, yMax: vh * 0.22 },  // top
+              { yMin: vh * 0.30, yMax: vh * 0.50 },  // middle
+            ];
         const usedBands = new Set();
         alive.forEach(el => { if (el !== card && el.dataset.band) usedBands.add(+el.dataset.band); });
         const freeBands = BANDS.map((_, i) => i).filter(i => !usedBands.has(i));
@@ -551,14 +566,30 @@
         card.dataset.band = bandIdx;
         const band = BANDS[bandIdx];
 
-        // Simple straight-line motion: bottom → target → off the top.
-        const startX = lane;
-        const startY = vh + 60;                                // below the fold
-        const targetX = lane + gsap.utils.random(-20, 20);
-        const baseTargetY = gsap.utils.random(band.yMin, band.yMax);
-        const targetY = baseTargetY + gsap.utils.random(-vh * 0.04, vh * 0.04);
-        const exitX  = lane + gsap.utils.random(-30, 30);
-        const exitY  = -realH - 80;                            // above the fold
+        let startX, startY, targetX, targetY, exitX, exitY;
+
+        if (isMobile) {
+          // ── HORIZONTAL flow: right → centre → left ──
+          const rowY = gsap.utils.random(band.yMin, band.yMax);
+          startX  = vw + 60;                                  // off right
+          startY  = rowY;
+          targetX = gsap.utils.random(vw * 0.05, Math.max(vw * 0.30, vw - realW - 16));
+          targetY = rowY + gsap.utils.random(-12, 12);
+          exitX   = -realW - 80;                              // off left
+          exitY   = rowY;
+        } else {
+          // ── VERTICAL flow: bottom → centre → top (right half only) ──
+          const rightHalfStart = vw * 0.50;
+          const rightHalfEnd   = Math.max(rightHalfStart + 20, vw - realW - 24);
+          const lane = gsap.utils.random(rightHalfStart, rightHalfEnd);
+          startX  = lane;
+          startY  = vh + 60;
+          targetX = lane + gsap.utils.random(-20, 20);
+          const baseTargetY = gsap.utils.random(band.yMin, band.yMax);
+          targetY = baseTargetY + gsap.utils.random(-vh * 0.04, vh * 0.04);
+          exitX   = lane + gsap.utils.random(-30, 30);
+          exitY   = -realH - 80;
+        }
 
         const baseTilt  = gsap.utils.random(-10, 10);  // landing tilt
         const enterTilt = gsap.utils.random(-14, 14);  // off-screen start tilt
@@ -571,9 +602,10 @@
           scale: 0.94,
         });
 
-        // Drift during dwell — tiny upward bob to match the bottom→top flow.
+        // Drift during dwell — direction matches the flow axis.
         const drift = gsap.to(card, {
-          y: '-=18',
+          x: isMobile ? '-=24' : 0,           // mobile bobs leftward (toward exit)
+          y: isMobile ? 0       : '-=18',     // desktop bobs upward (toward exit)
           rotation: baseTilt + (Math.random() < 0.5 ? 1.4 : -1.4),
           duration: gsap.utils.random(3.4, 4.4),
           ease: 'sine.inOut',
