@@ -551,14 +551,14 @@
         card.dataset.band = bandIdx;
         const band = BANDS[bandIdx];
 
-        // Simple straight-line motion: top → target → off the bottom.
+        // Simple straight-line motion: bottom → target → off the top.
         const startX = lane;
-        const startY = -realH - 60;                            // above the fold
+        const startY = vh + 60;                                // below the fold
         const targetX = lane + gsap.utils.random(-20, 20);
         const baseTargetY = gsap.utils.random(band.yMin, band.yMax);
         const targetY = baseTargetY + gsap.utils.random(-vh * 0.04, vh * 0.04);
         const exitX  = lane + gsap.utils.random(-30, 30);
-        const exitY  = vh + 80;                                // below the fold
+        const exitY  = -realH - 80;                            // above the fold
 
         const baseTilt  = gsap.utils.random(-10, 10);  // landing tilt
         const enterTilt = gsap.utils.random(-14, 14);  // off-screen start tilt
@@ -571,9 +571,9 @@
           scale: 0.94,
         });
 
-        // Drift during dwell — tiny downward bob to match the top→bottom flow.
+        // Drift during dwell — tiny upward bob to match the bottom→top flow.
         const drift = gsap.to(card, {
-          y: '+=18',
+          y: '-=18',
           rotation: baseTilt + (Math.random() < 0.5 ? 1.4 : -1.4),
           duration: gsap.utils.random(3.4, 4.4),
           ease: 'sine.inOut',
