@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verdix | Holistic Case Assessment System</title>
+  <meta name="description" content="Verdix is a secure, compliant platform that learns continuously to provide attorneys & lawyers with synthesized wisdom." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <link rel="icon" type="image/svg+xml" href="assets/favicon/favicon.svg" />
+  <link rel="icon" type="image/png" href="assets/favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="shortcut icon" href="assets/favicon/favicon.ico" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-navy: #00335A;
+      --color-navy-deep: #001E37;
+      --color-peach: #FFDFCB;
+      --color-blue-400: #176CAD;
+      --color-blue-600: #184C8F;
+      --color-white: #FFFFFF;
+      --color-blue-200: #A9DAFF;
+      --grid-size: 56px;
+      --mx: 50%;
+      --my: 50%;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent;
+      color: var(--color-white);
+      font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    html { background: #465B6C; }
+
+    /* ─── Background gradient ─── */
+    .bg {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(180deg, #00335A 0%, #FFDFCB 100%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ─── Grid (cursor-reactive) ─── */
+    .grid {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.28) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.28) 1px, transparent 1px);
+      background-size: var(--grid-size) var(--grid-size);
+      -webkit-mask-image: radial-gradient(circle 240px at var(--mx) var(--my), rgba(0,0,0,1) 0%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0) 100%);
+              mask-image: radial-gradient(circle 240px at var(--mx) var(--my), rgba(0,0,0,1) 0%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0) 100%);
+    }
+    /* baseline subtle grid — always visible across the whole page */
+    .grid-base {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.07) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.07) 1px, transparent 1px);
+      background-size: var(--grid-size) var(--grid-size);
+    }
+    /* ─── Layout ─── */
+    .page {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      /* Padding is exactly 1 grid cell on every side → content starts on a grid line */
+      padding: var(--grid-size);
+      display: grid;
+      grid-template-rows: var(--grid-size) 1fr auto;
+      gap: clamp(16px, 2vw, 24px);
+    }
+
+    /* ─── Header (sits in row 1, exactly 1 grid cell tall) ─── */
+    .header {
+      height: var(--grid-size);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo svg { display: block; width: clamp(120px, 11vw, 161px); height: auto; max-height: 100%; }
+
+
+    /* ─── Headline ─── */
+    .headline-wrap {
+      align-self: center;
+      width: 100%;
+    }
+    h1 {
+      font-family: "DM Sans", sans-serif;
+      font-weight: 300;
+      /* Per Figma spec: letter-spacing -8.646/172.929 ≈ -0.05em,
+         line-height 157.443/172.929 ≈ 0.91 — proportional, so they scale
+         with font-size at every viewport. */
+      letter-spacing: -0.05em;
+      line-height: 0.91;
+      /* Fluid type: scales smoothly with both width and height so it stays
+         in proportion on tall narrow phones, ultrawide monitors, and short
+         windows alike. */
+      font-size: clamp(40px, min(13vw, 22vh), 240px);
+      color: var(--color-white);
+      white-space: pre-wrap;
+    }
+    .word { display: inline-block; overflow: hidden; padding-bottom: 0.04em; }
+    .char { display: inline-block; will-change: transform, filter, opacity; }
+
+    /* ─── Footer (subtitle + CTA) ─── */
+    .footer {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: clamp(20px, 2vw, 32px);
+    }
+    .subtitle {
+      max-width: none;
+      width: fit-content;
+      font-size: clamp(20px, min(1.9vw, 2.9vh), 32px);
+      line-height: 1.35;
+      color: #465B6C;
+      will-change: transform, opacity;
+    }
+    .subtitle-line { display: block; white-space: nowrap; }
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 24px;
+      background: #00335A;
+      color: var(--color-white);
+      font-family: "Inter", sans-serif;
+      font-weight: 700;
+      font-size: clamp(18px, min(1.6vw, 2.5vh), 25px);
+      padding: clamp(22px, min(2.4vw, 3.4vh), 36px) clamp(34px, min(3.4vw, 4.8vh), 62px);
+      border-radius: 16px;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      /* GSAP drives transform & shadow on hover; CSS handles color so we never
+         fight the engine over the same property. */
+      transition: background-color 0.2s ease, box-shadow 0.3s ease;
+      will-change: transform, opacity;
+      box-shadow: 0 4px 16px rgba(0,51,90,0.18);
+    }
+    .cta:hover { background: #002544; box-shadow: 0 8px 28px rgba(0,51,90,0.40); }
+    .cta-arrow { display: inline-block; will-change: transform; }
+    .cta-inner { display: inline-flex; align-items: center; gap: 24px; will-change: transform; }
+    @media (prefers-reduced-motion: reduce) {
+      .cta { transition: background-color 0.2s ease; box-shadow: none; }
+      .cta:hover { box-shadow: none; }
+    }
+
+    /* Mid-size laptops & older displays — pull header + CTA in a notch
+       so the page feels balanced when the viewport is below 1300px wide. */
+    @media (max-width: 1300px) {
+      .logo svg { width: clamp(108px, 9vw, 138px); }
+      .header  { height: 48px; }
+      .page    { padding: 48px; grid-template-rows: 48px 1fr auto; }
+      .cta {
+        font-size: clamp(15px, min(1.35vw, 2.1vh), 21px);
+        padding:   clamp(16px, min(1.9vw, 2.7vh), 28px)
+                   clamp(26px, min(2.7vw, 3.8vh), 50px);
+        border-radius: 14px;
+        gap: 18px;
+      }
+      .subtitle {
+        font-size: clamp(17px, min(1.55vw, 2.4vh), 26px);
+      }
+    }
+
+    /* Below 1200px the floating cards shrink ~30% so they don't dominate
+       the right column on smaller laptops & tablets. Every Figma value is
+       scaled by 0.7 from the default 1.5× spec (= ~1.05× the original).
+       The page headline also shrinks ~25% so the proportion stays right. */
+    @media (max-width: 1200px) {
+      h1 { font-size: clamp(32px, min(9.5vw, 16vh), 160px); }
+    }
+
+    @media (max-width: 720px) {
+      .footer { gap: 16px; }
+    }
+
+    /* ─── Impression cards (floating testimonials, top-most layer) ─── */
+    .impression-card {
+      position: fixed;
+      display: flex;
+      /* 1.5× the Figma spec — all values multiplied by 1.5 for visual scale up */
+      width: 573px;
+      padding: 77.714px 60.654px 72.027px 47.387px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 87px;
+      border-radius: 32.223px;
+      background: rgba(255, 255, 255, 0.22);
+      -webkit-backdrop-filter: blur(12.15px);
+              backdrop-filter: blur(12.15px);
+      border: 1px solid rgba(255,255,255,0.35);
+      box-shadow: 0 18px 60px rgba(0,51,90,0.20);
+      z-index: 100;
+      pointer-events: auto;
+      will-change: transform, opacity;
+      color: #00335A;
+      font-family: "DM Sans", sans-serif;
+      cursor: default;
+      top: 0; left: 0; /* GSAP drives x/y */
+    }
+    .impression-quote {
+      font-size: 28.5px;
+      line-height: 1.4;
+      font-weight: 400;
+      letter-spacing: -0.005em;
+      margin: 0;
+    }
+    .impression-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .impression-name {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .impression-title {
+      font-size: 21px;
+      font-weight: 400;
+      opacity: 0.75;
+      letter-spacing: 0.01em;
+    }
+    /* Card scaling — placed AFTER the base .impression-card rule so the
+       media-query overrides actually win (CSS source order with equal
+       specificity). */
+    @media (max-width: 1200px) {
+      .impression-card {
+        width: clamp(300px, 38vw, 401px);
+        padding: clamp(34px, 4.5vw, 54.4px)
+                 clamp(26px, 3.5vw, 42.5px)
+                 clamp(32px, 4.2vw, 50.4px)
+                 clamp(20px, 2.8vw, 33.2px);
+        gap: clamp(36px, 5vw, 61px);
+        border-radius: clamp(16px, 1.9vw, 22.5px);
+        -webkit-backdrop-filter: blur(8.5px);
+                backdrop-filter: blur(8.5px);
+      }
+      .impression-quote { font-size: clamp(15px, 1.7vw, 20px); line-height: 1.4; }
+      .impression-name  { font-size: clamp(14px, 1.45vw, 17px); }
+      .impression-title { font-size: clamp(12px, 1.25vw, 15px); }
+    }
+    @media (max-width: 720px) {
+      /* Cap to 340px so the card doesn't balloon when 88vw exceeds it on tablets */
+      .impression-card { width: min(88vw, 340px); padding: 32px 24px 28px 20px; gap: 36px; border-radius: 18px; }
+      .impression-quote { font-size: 17px; line-height: 1.4; }
+      .impression-name { font-size: 15px; }
+      .impression-title { font-size: 13px; }
+    }
+
+
+    /* Initial state for animation */
+    .char { opacity: 0; transform: translateY(60%) scale(1.08); filter: blur(14px); }
+    .subtitle, .cta, .header { opacity: 0; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-base"></div>
+  <div class="grid"></div>
+
+  <main class="page">
+    <header class="header">
+      <a href="/" class="logo" aria-label="Verdix">
+        <svg viewBox="0 0 161 50" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M64.4567 40L53.8704 15.0466H58.3696L66.6874 35.5008L75.043 15.0466H79.5044L68.9181 40H64.4567ZM96.656 32.0225H81.9108C82.0116 33.5096 82.604 34.6564 83.6878 35.463C84.7968 36.2696 86.2084 36.6729 87.9223 36.6729C88.8801 36.6729 89.6489 36.5847 90.2286 36.4082C90.8084 36.2066 91.2747 35.9671 91.6275 35.6899C92.0056 35.3874 92.3711 35.0975 92.724 34.8203L95.7108 37.2022C95.0555 37.8575 94.4001 38.4247 93.7448 38.9036C93.0895 39.3825 92.3081 39.7479 91.4007 40C90.4933 40.2773 89.3338 40.4159 87.9223 40.4159C85.6538 40.4159 83.7634 40 82.2511 39.1682C80.7388 38.3112 79.6045 37.1392 78.8483 35.6521C78.1174 34.1649 77.7519 32.4636 77.7519 30.5479C77.7519 28.6575 78.0796 26.9688 78.7349 25.4816C79.3903 23.9945 80.4237 22.8225 81.8352 21.9655C83.2467 21.1085 85.0867 20.68 87.3552 20.68C89.6489 20.68 91.4763 21.1085 92.8374 21.9655C94.1985 22.8225 95.1689 23.9945 95.7486 25.4816C96.3536 26.9688 96.656 28.6575 96.656 30.5479V32.0225ZM81.9486 28.771H92.4593C92.4593 27.5611 92.0308 26.5403 91.1738 25.7085C90.3421 24.8515 89.0692 24.423 87.3552 24.423C85.6664 24.423 84.3936 24.8137 83.5366 25.5951C82.7048 26.3512 82.1755 27.4099 81.9486 28.771ZM111.175 24.7633C110.973 24.7381 110.759 24.7129 110.532 24.6877C110.33 24.6625 110.103 24.6499 109.851 24.6499C108.667 24.6499 107.583 24.9901 106.6 25.6707C105.642 26.326 104.873 27.2082 104.294 28.3173C103.739 29.4263 103.462 30.6236 103.462 31.909V40.2268H99.4541V21.3227H103.462V24.7255C103.84 24.2214 104.306 23.6794 104.861 23.0997C105.415 22.4948 106.121 21.9781 106.978 21.5496C107.835 21.1211 108.919 20.9068 110.229 20.9068C110.633 20.9068 111.011 20.9194 111.364 20.9446C111.717 20.9699 112.057 21.0203 112.385 21.0959L111.175 24.7633ZM121 40.4159C118.858 40.4159 117.106 40 115.745 39.1682C114.409 38.3112 113.426 37.1392 112.796 35.6521C112.191 34.1649 111.889 32.4636 111.889 30.5479C111.889 28.6575 112.191 26.9688 112.796 25.4816C113.426 23.9945 114.409 22.8225 115.745 21.9655C117.106 21.1085 118.858 20.68 121 20.68C122.639 20.68 123.949 21.0203 124.932 21.7008C125.941 22.3562 126.709 23.1123 127.239 23.9693V12.4756H131.284V40H127.239V37.1266C126.709 37.9836 125.941 38.7523 124.932 39.4329C123.949 40.0882 122.639 40.4159 121 40.4159ZM115.934 30.5479C115.934 31.8586 116.123 32.9677 116.501 33.8751C116.879 34.7825 117.459 35.4756 118.24 35.9545C119.022 36.4334 120.005 36.6729 121.189 36.6729C122.399 36.6729 123.445 36.4334 124.328 35.9545C125.235 35.4756 125.941 34.7825 126.445 33.8751C126.949 32.9677 127.201 31.8586 127.201 30.5479C127.201 29.2625 126.949 28.166 126.445 27.2586C125.941 26.3512 125.235 25.6581 124.328 25.1792C123.445 24.6751 122.399 24.423 121.189 24.423C120.005 24.423 119.022 24.6751 118.24 25.1792C117.459 25.6581 116.879 26.3512 116.501 27.2586C116.123 28.166 115.934 29.2625 115.934 30.5479ZM138.37 21.0959V40H134.363V21.0959H138.37ZM136.404 17.92C135.774 17.92 135.232 17.6931 134.779 17.2394C134.325 16.7857 134.098 16.2312 134.098 15.5759C134.098 14.9457 134.325 14.4038 134.779 13.9501C135.232 13.4964 135.774 13.2696 136.404 13.2696C137.034 13.2696 137.576 13.4964 138.03 13.9501C138.484 14.4038 138.711 14.9457 138.711 15.5759C138.711 16.2312 138.484 16.7857 138.03 17.2394C137.576 17.6931 137.034 17.92 136.404 17.92ZM139.98 40L147.504 30.0564L140.737 21.0959H145.122L149.886 27.4099L154.65 21.0959H159.036L152.306 30.0564L159.792 40H155.368L149.886 32.7408L144.404 40H139.98Z" fill="white"/>
+          <path d="M20.9767 1.08032C21.8188 1.60544 22.6224 2.17904 23.3654 2.80688C24.7221 3.69111 26.195 4.45885 27.7365 5.11548C31.1415 6.3782 35.6428 7.51607 39.2521 7.98169C39.9105 8.06286 40.4532 8.22916 40.6955 9.08618C41.361 13.4877 41.4092 17.1538 40.8068 21.6536C40.0037 27.649 37.9601 33.4443 34.3634 38.2698C34.0236 38.7256 33.6731 39.1687 33.3126 39.5999C31.1262 42.218 28.5708 44.3986 25.7775 46.2874C24.3016 47.2851 22.7595 48.202 21.1701 49.0579C20.8139 49.2121 20.4101 49.2119 20.0539 49.0579C18.4641 48.2017 16.9223 47.2851 15.4464 46.2874C12.6532 44.3987 10.0986 42.2176 7.91225 39.5999C7.55214 39.1684 7.20131 38.7253 6.86147 38.2698C3.26513 33.444 1.22017 27.649 0.417132 21.6536C-0.185662 17.1538 -0.126662 13.5433 0.539203 9.14185C0.54399 9.12224 0.779129 8.17735 1.56264 8.06274C2.3545 7.94705 8.48894 7.11606 13.4874 5.11548C13.5904 5.07733 13.6751 5.21937 13.5949 5.29419C10.915 7.77787 9.62446 11.234 9.82143 14.928C9.91915 16.759 10.328 17.7009 9.3351 19.468C8.84391 20.342 7.28994 21.9116 7.12514 22.7219C6.89183 23.8712 8.27698 24.0604 8.9601 24.5862C9.96131 25.3566 8.89894 26.1638 9.09877 27.0344C9.10657 27.0683 9.11938 27.1007 9.13588 27.1311C9.4891 27.7821 9.47099 28.061 9.56166 28.7961C9.61991 29.2657 10.5644 29.9378 10.6886 30.5393C10.8785 31.4594 10.0536 31.9804 10.6652 33.2239C11.0464 33.9988 11.6765 34.3228 12.4025 34.4163C13.6682 34.5788 15.2269 34.0392 16.2736 33.9612C18.3398 33.8071 19.7734 34.5382 20.6115 35.7444C21.6032 37.1723 21.7603 39.2663 21.1398 41.3508C20.9259 42.0679 20.2855 44.2762 20.9699 44.7053C21.592 45.095 22.3668 44.4086 23.0206 44.0745C25.432 42.8423 27.8476 40.2949 28.5695 37.8596C28.9466 36.5875 29.0046 35.449 28.8214 34.4163C28.1209 30.4718 23.9106 28.0677 20.6115 25.6213C20.3539 25.4304 20.1019 25.2386 19.8576 25.0461C14.8948 21.1423 12.1966 16.755 13.382 10.1458C13.9314 7.08276 15.6226 4.69703 17.8595 2.80688C18.6027 2.17916 19.4056 1.60536 20.2472 1.08032C20.3614 1.00257 20.4775 0.926535 20.5949 0.85376H20.63C20.7474 0.92652 20.8629 1.00259 20.9767 1.08032ZM29.7638 9.72388C29.7349 9.48224 29.3836 9.48225 29.3546 9.72388L29.1144 11.7542C28.8033 14.3747 26.7369 16.4411 24.1164 16.7522L22.0861 16.9924C21.8442 17.0212 21.8443 17.3728 22.0861 17.4016L24.1164 17.6418C26.737 17.953 28.8034 20.0202 29.1144 22.6409L29.3546 24.6702C29.3834 24.9121 29.735 24.9121 29.7638 24.6702L30.004 22.6409C30.315 20.0201 32.3814 17.9529 35.0021 17.6418L37.0324 17.4016C37.2741 17.3727 37.2741 17.0213 37.0324 16.9924L35.0021 16.7522C32.3815 16.4411 30.3151 14.3748 30.004 11.7542L29.7638 9.72388Z" fill="white"/>
+        </svg>
+      </a>
+    </header>
+
+    <section class="headline-wrap">
+      <h1 data-headline>Holistic Case Assessment System</h1>
+    </section>
+
+    <footer class="footer">
+      <p class="subtitle">
+        <span class="subtitle-line">We build secure, compliant AI-centric intelligence platform that learns continuously</span>
+        <span class="subtitle-line">to provide attorneys &amp; lawyers with synthesized wisdom.</span>
+      </p>
+      <a class="cta" href="mailto:info@verdix.ch?subject=Be%20the%20first%20to%20try%20Verdix">
+        <span class="cta-inner">
+          <span class="cta-label">BE THE FIRST TO TRY</span>
+          <span class="cta-arrow" aria-hidden="true">→</span>
+        </span>
+      </a>
+    </footer>
+  </main>
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <script>
+    /* ── Split headline into chars wrapped in words (preserves spaces) ── */
+    (function splitHeadline() {
+      const h1 = document.querySelector('[data-headline]');
+      const text = h1.textContent;
+      h1.textContent = '';
+      const frag = document.createDocumentFragment();
+      text.split(' ').forEach((word, wi, arr) => {
+        const wordEl = document.createElement('span');
+        wordEl.className = 'word';
+        [...word].forEach(ch => {
+          const c = document.createElement('span');
+          c.className = 'char';
+          c.textContent = ch;
+          wordEl.appendChild(c);
+        });
+        frag.appendChild(wordEl);
+        if (wi < arr.length - 1) {
+          const space = document.createElement('span');
+          space.className = 'word';
+          const s = document.createElement('span');
+          s.className = 'char';
+          s.innerHTML = '&nbsp;';
+          space.appendChild(s);
+          frag.appendChild(space);
+        }
+      });
+      h1.appendChild(frag);
+    })();
+
+    /* ── GSAP intro: sequential pixelate-style reveal ── */
+    window.addEventListener('load', () => {
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+      tl.to('.header', { opacity: 1, duration: 0.6 })
+        .to('.char', {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          filter: 'blur(0px)',
+          duration: 0.7,
+          stagger: { amount: 1.2, from: 'start' },
+        }, '-=0.2')
+        .fromTo('.subtitle',
+          { opacity: 0, y: 24 },
+          { opacity: 1, y: 0, duration: 0.7 }, '-=0.5')
+        .fromTo('.cta',
+          { opacity: 0, y: 24 },
+          { opacity: 1, y: 0, duration: 0.7, onComplete: enableCtaMicro }, '-=0.5');
+    });
+
+    /* ── GSAP best-practice CTA micro-interaction ──
+       Patterns applied (interaction-design + GSAP core):
+       - quickTo for high-frequency mousemove (no GC pressure, smoother)
+       - Magnetic outer translation, parallax inner translation, arrow slide
+       - power3.out on engage, elastic.out on release for a tactile snap-back
+       - press-down state on pointerdown for haptic feedback
+       - prefers-reduced-motion bypasses transforms entirely
+    */
+    function enableCtaMicro() {
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) return;
+
+      const cta   = document.querySelector('.cta');
+      const inner = cta.querySelector('.cta-inner');
+      const arrow = cta.querySelector('.cta-arrow');
+      if (!cta || !inner || !arrow) return;
+
+      // Performant tweens (recommended GSAP pattern for mousemove)
+      const xTo = gsap.quickTo(cta,   'x', { duration: 0.5, ease: 'power3.out' });
+      const yTo = gsap.quickTo(cta,   'y', { duration: 0.5, ease: 'power3.out' });
+      const ixTo = gsap.quickTo(inner, 'x', { duration: 0.6, ease: 'power3.out' });
+      const iyTo = gsap.quickTo(inner, 'y', { duration: 0.6, ease: 'power3.out' });
+
+      const MAGNETIC_STRENGTH = 0.30; // 30% of distance to centre
+      const INNER_STRENGTH    = 0.55; // inner content drifts a bit MORE for parallax
+
+      let bounds = null;
+      const refreshBounds = () => { bounds = cta.getBoundingClientRect(); };
+
+      cta.addEventListener('pointerenter', () => {
+        refreshBounds();
+        gsap.to(arrow, { x: 10, duration: 0.45, ease: 'power3.out' });
+        gsap.to(cta,   { scale: 1.04, duration: 0.45, ease: 'power3.out' });
+      });
+
+      cta.addEventListener('pointermove', (e) => {
+        if (!bounds) refreshBounds();
+        const cx = bounds.left + bounds.width  / 2;
+        const cy = bounds.top  + bounds.height / 2;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        xTo(dx * MAGNETIC_STRENGTH);
+        yTo(dy * MAGNETIC_STRENGTH);
+        ixTo(dx * (INNER_STRENGTH - MAGNETIC_STRENGTH));
+        iyTo(dy * (INNER_STRENGTH - MAGNETIC_STRENGTH));
+      });
+
+      cta.addEventListener('pointerleave', () => {
+        // Elastic snap-back — feels tactile without overshooting too much
+        gsap.to(cta,   { x: 0, y: 0, scale: 1, duration: 0.85, ease: 'elastic.out(1, 0.45)' });
+        gsap.to(inner, { x: 0, y: 0,           duration: 0.85, ease: 'elastic.out(1, 0.45)' });
+        gsap.to(arrow, { x: 0,                 duration: 0.45, ease: 'power3.out' });
+      });
+
+      // Tactile press
+      cta.addEventListener('pointerdown', () => {
+        gsap.to(cta, { scale: 0.96, duration: 0.12, ease: 'power2.out' });
+      });
+      cta.addEventListener('pointerup', () => {
+        gsap.to(cta, { scale: 1.04, duration: 0.25, ease: 'power3.out' });
+      });
+
+      // Keep bounds fresh on resize/scroll
+      window.addEventListener('resize', refreshBounds);
+      window.addEventListener('scroll', refreshBounds, { passive: true });
+    }
+
+    /* ── Floating impression cards ────────────────────────────────────────
+       10 short reactions from real-feeling personas across CH / CA / USA.
+       Cards fly in from a screen edge, drift gently, then fly out the
+       opposite side. 2–3 are on screen at a time. Hover pauses the drift
+       and lifts the card slightly for closer reading. */
+    const IMPRESSIONS = [
+      // General excitement about the platform, the possibilities ahead, and
+      // where the domain is heading. No feature names. No specific cases.
+      // Mix of humble personal admissions and quiet conviction.
+
+      // Attorneys
+      { name: 'Lukas B.',   country: 'Zurich, CH',         role: 'Attorney',
+        quote: '“Felt a shift in how I’ll work next year.”' },
+      { name: 'Elena V.',   country: 'San Francisco, USA', role: 'Attorney',
+        quote: '“Walked in cautious. Walked out wanting to share it.”' },
+
+      // Divorce lawyers
+      { name: 'Camille T.', country: 'Montréal, CA',       role: 'Divorce Lawyer',
+        quote: '“Hopeful for clients in ways I haven’t been before.”' },
+      { name: 'Marc D.',    country: 'Genève, CH',         role: 'Divorce Lawyer',
+        quote: '“Something here is going to matter. I can feel it.”' },
+
+      // Legal IT
+      { name: 'Daniel O.',  country: 'Boston, USA',        role: 'Legal IT Automation Officer',
+        quote: '“This is the direction our profession needed to go.”' },
+      { name: 'Aisha P.',   country: 'Vancouver, CA',      role: 'Legal IT Automation Officer',
+        quote: '“Already imagining what our firm could become.”' },
+
+      // CEOs
+      { name: 'Sofia R.',   country: 'Basel, CH',          role: 'CEO',
+        quote: '“A glimpse of where serious legal work is heading.”' },
+      { name: 'Robert K.',  country: 'Chicago, USA',       role: 'CEO',
+        quote: '“Hard to look at the field the same way.”' },
+
+      // Investors
+      { name: 'James W.',   country: 'Toronto, CA',        role: 'Private Investor',
+        quote: '“Something rare here. The kind worth paying attention to.”' },
+      { name: 'Yann S.',    country: 'Lausanne, CH',       role: 'Private Investor',
+        quote: '“Optimistic in a way I haven’t been in years.”' },
+    ];
+
+    (function impressionStream() {
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) return;
+
+      const CARD_W = 573;          // 1.5× the Figma spec
+      const CARD_H = 420;          // rough — used for spawn math, real height self-measures
+      const ENTRY_S = 1.45;
+      const DWELL_S = 4.8;
+      const EXIT_S  = 1.55;
+      const LIFETIME_S = ENTRY_S + DWELL_S + EXIT_S;  // ≈ 7.8 s
+      // Spawn the next card at half the lifetime so two cards continuously
+      // overlap on screen — never appearing or leaving in pairs.
+      const SPAWN_OFFSET_S = LIFETIME_S * 0.5;
+      const DWELL_MS = DWELL_S * 1000;
+
+      let order = gsap.utils.shuffle([...IMPRESSIONS.keys()]);
+      let cursor = 0;
+      let alive = new Set();
+
+      function nextIndex() {
+        if (cursor >= order.length) {
+          order = gsap.utils.shuffle([...IMPRESSIONS.keys()]);
+          cursor = 0;
+        }
+        return order[cursor++];
+      }
+
+      function buildCard(data) {
+        const card = document.createElement('article');
+        card.className = 'impression-card';
+        card.innerHTML = `
+          <p class="impression-quote">${data.quote}</p>
+          <div class="impression-meta">
+            <div class="impression-name">${data.name}</div>
+            <div class="impression-title">${data.role} · ${data.country}</div>
+          </div>`;
+        return card;
+      }
+
+      function spawn() {
+        // Single-chain spawner: each call schedules its own successor at
+        // SPAWN_OFFSET_S so we always have continuous 2-card overlap.
+        gsap.delayedCall(SPAWN_OFFSET_S, spawn);
+
+        const data = IMPRESSIONS[nextIndex()];
+        const card = buildCard(data);
+        // Pre-position off-screen before measuring so it doesn't flash
+        card.style.transform = 'translate(-9999px, -9999px)';
+        document.body.appendChild(card);
+        alive.add(card);
+
+        // Cards live only on the RIGHT HALF of the viewport (vw 50%+),
+        // flying upward from below the fold to above it.
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+
+        // Measure the card's actual rendered size so spawn math respects the
+        // current breakpoint's downscaled dimensions.
+        const cardRect = card.getBoundingClientRect();
+        const realW = cardRect.width  || CARD_W;
+        const realH = cardRect.height || CARD_H;
+
+        // Confine x to the right half, leaving the card's own width in mind.
+        const rightHalfStart = vw * 0.50;
+        const rightHalfEnd   = Math.max(rightHalfStart + 20, vw - realW - 24);
+        const lane = gsap.utils.random(rightHalfStart, rightHalfEnd);
+
+        // Pick a vertical band that none of the currently-alive cards are using,
+        // so multiple cards on screen don't pile on top of each other.
+        // Widened ranges + an extra jitter so consecutive cards in the same
+        // band still land at meaningfully different Y positions.
+        const BANDS = [
+          { yMin: vh * 0.02, yMax: vh * 0.22 },  // top
+          { yMin: vh * 0.30, yMax: vh * 0.50 },  // middle
+        ];
+        const usedBands = new Set();
+        alive.forEach(el => { if (el !== card && el.dataset.band) usedBands.add(+el.dataset.band); });
+        const freeBands = BANDS.map((_, i) => i).filter(i => !usedBands.has(i));
+        const bandIdx = freeBands.length
+          ? freeBands[Math.floor(Math.random() * freeBands.length)]
+          : Math.floor(Math.random() * BANDS.length);
+        card.dataset.band = bandIdx;
+        const band = BANDS[bandIdx];
+
+        // Simple straight-line motion: top → target → off the bottom.
+        const startX = lane;
+        const startY = -realH - 60;                            // above the fold
+        const targetX = lane + gsap.utils.random(-20, 20);
+        const baseTargetY = gsap.utils.random(band.yMin, band.yMax);
+        const targetY = baseTargetY + gsap.utils.random(-vh * 0.04, vh * 0.04);
+        const exitX  = lane + gsap.utils.random(-30, 30);
+        const exitY  = vh + 80;                                // below the fold
+
+        const baseTilt  = gsap.utils.random(-10, 10);  // landing tilt
+        const enterTilt = gsap.utils.random(-14, 14);  // off-screen start tilt
+
+        gsap.set(card, {
+          x: startX,
+          y: startY,
+          rotation: enterTilt,
+          opacity: 0,
+          scale: 0.94,
+        });
+
+        // Drift during dwell — tiny downward bob to match the top→bottom flow.
+        const drift = gsap.to(card, {
+          y: '+=18',
+          rotation: baseTilt + (Math.random() < 0.5 ? 1.4 : -1.4),
+          duration: gsap.utils.random(3.4, 4.4),
+          ease: 'sine.inOut',
+          yoyo: true,
+          repeat: -1,
+          paused: true,
+        });
+
+        const tl = gsap.timeline({
+          onComplete: () => {
+            drift.kill();
+            card.remove();
+            alive.delete(card);
+          },
+        });
+
+        tl.to(card, {
+          x: targetX,
+          y: targetY,
+          rotation: baseTilt,
+          opacity: 1,
+          scale: 1,
+          duration: ENTRY_S,
+          ease: 'power3.out',
+          onComplete: () => drift.play(),
+        })
+          .to({}, { duration: DWELL_S }) // dwell while drift runs
+          .to(card, {
+            x: exitX,
+            y: exitY,
+            rotation: baseTilt + (Math.random() < 0.5 ? -10 : 10),
+            opacity: 0,
+            scale: 0.96,
+            duration: EXIT_S,
+            ease: 'power3.in',
+            onStart: () => drift.pause(),
+          });
+
+        // ── Interactivity: hover pauses drift + lifts card slightly ──
+        card.addEventListener('pointerenter', () => {
+          drift.pause();
+          gsap.to(card, { scale: 1.04, duration: 0.45, ease: 'power3.out' });
+          tl.timeScale(0.3); // slow the dwell timeline so the user can read
+        });
+        card.addEventListener('pointerleave', () => {
+          gsap.to(card, { scale: 1, duration: 0.5, ease: 'power3.out',
+            onComplete: () => drift.resume() });
+          tl.timeScale(1);
+        });
+      }
+
+      // Single kickoff. spawn() schedules its own successor at half the
+      // lifetime, producing a continuous overlap (each new card enters while
+      // the previous is mid-dwell) — never in synchronised pairs.
+      gsap.delayedCall(2.0, spawn);
+    })();
+
+    /* ── Cursor-reactive grid ── */
+    (function cursorGrid() {
+      const root = document.documentElement;
+      let targetX = window.innerWidth / 2;
+      let targetY = window.innerHeight / 2;
+      let curX = targetX;
+      let curY = targetY;
+
+      window.addEventListener('mousemove', (e) => {
+        targetX = e.clientX;
+        targetY = e.clientY;
+      });
+
+      function loop() {
+        // ease toward target for buttery feel
+        curX += (targetX - curX) * 0.12;
+        curY += (targetY - curY) * 0.12;
+        root.style.setProperty('--mx', curX + 'px');
+        root.style.setProperty('--my', curY + 'px');
+        requestAnimationFrame(loop);
+      }
+      loop();
+    })();
+  </script>
+</body>
+</html>
