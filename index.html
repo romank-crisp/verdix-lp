@@ -87,8 +87,11 @@
       font-family: "DM Sans", sans-serif;
       font-weight: 300;
       overflow-wrap: break-word;
-      /* Per Figma spec */
-      background: linear-gradient(94deg, #FFDFCB 6.4%, #87C1F0 91.31%);
+      /* Gradient applied to both h1 and its .char spans (after JS splitting).
+         background-attachment: fixed maps the gradient to the viewport so
+         every span shares ONE continuous gradient, rather than each char
+         re-rendering a tiny peach→blue gradient inside itself. */
+      background: linear-gradient(94deg, #FFDFCB 6.4%, #87C1F0 91.31%) fixed;
       background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -106,7 +109,17 @@
       white-space: pre-wrap;
     }
     .word { display: inline-block; overflow: hidden; padding-bottom: 0.04em; }
-    .char { display: inline-block; will-change: transform, filter, opacity; }
+    .char {
+      display: inline-block;
+      will-change: transform, filter, opacity;
+      /* Share the same viewport-mapped gradient as h1 so the gradient flows
+         continuously across all chars instead of repeating per character. */
+      background: linear-gradient(94deg, #FFDFCB 6.4%, #87C1F0 91.31%) fixed;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    }
 
     /* ─── Footer (subtitle + CTA) ─── */
     .footer {
