@@ -119,7 +119,7 @@
     }
     .subtitle {
       max-width: 50%;
-      font-size: clamp(15px, min(1.1vw, 1.8vh), 18px);
+      font-size: 28px;       /* FHD default */
       line-height: 1.5;
       color: #FFFFFF;
       will-change: transform, opacity;
@@ -164,9 +164,7 @@
         border-radius: 14px;
         gap: 18px;
       }
-      .subtitle {
-        font-size: clamp(17px, min(1.55vw, 2.4vh), 26px);
-      }
+      .subtitle { font-size: 22px; }   /* 14" Mac / mid-size laptops */
     }
 
     /* Below 1200px the floating cards shrink ~30% so they don't dominate
@@ -189,7 +187,7 @@
       .logo svg { width: clamp(105px, 28.5vw, 150px); }
       .page { padding: 20px; gap: 12px; }
       /* Subtitle wraps naturally on mobile */
-      .subtitle { max-width: 100%; font-size: clamp(15px, 4.2vw, 20px); }
+      .subtitle { max-width: 100%; font-size: 18px; }   /* mobile */
       .subtitle-line { white-space: normal; display: inline; }
     }
 
