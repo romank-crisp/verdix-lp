@@ -96,7 +96,7 @@
       /* Fluid type: scales smoothly with both width and height so it stays
          in proportion on tall narrow phones, ultrawide monitors, and short
          windows alike. */
-      font-size: clamp(40px, min(13vw, 22vh), 240px);
+      font-size: clamp(28px, min(9.1vw, 15.4vh), 168px);
       color: var(--color-white);
       white-space: pre-wrap;
     }
@@ -175,7 +175,7 @@
        The page headline also shrinks ~25% so the proportion stays right. */
     @media (max-width: 1600px) {
       /* Cap headline at 100px below the breakpoint */
-      h1 { font-size: clamp(32px, min(7vw, 12vh), 100px); }
+      h1 { font-size: clamp(22px, min(4.9vw, 8.4vh), 70px); }
     }
 
     @media (max-width: 720px) {
@@ -183,7 +183,7 @@
       .footer { flex-direction: column; align-items: flex-start; gap: 20px; }
       .cta { width: 100%; justify-content: space-between; }
       /* Mobile: H1 ~doubles in size and spans full width */
-      h1 { font-size: clamp(48px, 14vw, 96px); }
+      h1 { font-size: clamp(34px, 9.8vw, 67px); }
       .headline-wrap { width: 100%; max-width: 100%; }
       /* Smaller logo on mobile so it doesn't dominate */
       .logo svg { width: clamp(105px, 28.5vw, 150px); }
