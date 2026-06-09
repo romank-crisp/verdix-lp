@@ -25,8 +25,6 @@
       --color-white: #FFFFFF;
       --color-blue-200: #A9DAFF;
       --grid-size: 40px;
-      --mx: 50%;
-      --my: 50%;
     }
 
     html, body {
@@ -42,39 +40,26 @@
     @supports not (height: 100dvh) {
       html, body { height: 100vh; }
     }
-    html { background: #00335A; }
+    html { background: #176CAD; }
 
-    /* ─── Background gradient ─── */
+    /* ─── Solid background ─── */
     .bg {
       position: fixed;
       inset: 0;
-      background: linear-gradient(180deg, #00335A 0%, #FFDFCB 100%);
+      background: #176CAD;
       z-index: 0;
       pointer-events: none;
     }
 
-    /* ─── Grid (cursor-reactive) ─── */
-    .grid {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 2;
-      background-image:
-        linear-gradient(to right, rgba(255,255,255,0.28) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255,255,255,0.28) 1px, transparent 1px);
-      background-size: var(--grid-size) var(--grid-size);
-      -webkit-mask-image: radial-gradient(circle 240px at var(--mx) var(--my), rgba(0,0,0,1) 0%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0) 100%);
-              mask-image: radial-gradient(circle 240px at var(--mx) var(--my), rgba(0,0,0,1) 0%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0) 100%);
-    }
-    /* baseline subtle grid — always visible across the whole page */
+    /* ─── Grid (subtle, 3% opacity baseline) ─── */
     .grid-base {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 1;
       background-image:
-        linear-gradient(to right, rgba(255,255,255,0.07) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255,255,255,0.07) 1px, transparent 1px);
+        linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
       background-size: var(--grid-size) var(--grid-size);
     }
     /* ─── Layout ─── */
@@ -91,13 +76,15 @@
       gap: clamp(16px, 2vw, 24px);
     }
 
-    /* ─── Header (auto-height to fit the larger logo) ─── */
+    /* ─── Header (auto-height to fit the logo) + hairline below ─── */
     .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding-bottom: clamp(20px, 2.5vw, 32px);
+      border-bottom: 1px solid rgba(255,255,255,0.18);
     }
-    .logo svg { display: block; width: clamp(180px, 18vw, 322px); height: auto; }
+    .logo svg { display: block; width: clamp(135px, 13.5vw, 242px); height: auto; }
 
 
     /* ─── Headline ─── */
@@ -111,6 +98,16 @@
       font-family: "DM Sans", sans-serif;
       font-weight: 300;
       overflow-wrap: break-word;
+      /* Diagonal gradient peach → cream → light blue */
+      background: linear-gradient(110deg,
+        #FFDFCB 0%,
+        #FFF4EA 30%,
+        #FFFFFF 50%,
+        #CEEAFF 75%,
+        #A9DAFF 100%);
+      -webkit-background-clip: text;
+              background-clip: text;
+      color: transparent;
       /* Per Figma spec: letter-spacing -8.646/172.929 ≈ -0.05em,
          line-height 157.443/172.929 ≈ 0.91 — proportional, so they scale
          with font-size at every viewport. */
@@ -129,16 +126,18 @@
     /* ─── Footer (subtitle + CTA) ─── */
     .footer {
       display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: clamp(20px, 2vw, 32px);
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: clamp(20px, 3vw, 48px);
+      padding-top: clamp(20px, 2.5vw, 32px);
+      border-top: 1px solid rgba(255,255,255,0.18);
     }
     .subtitle {
-      max-width: none;
-      width: fit-content;
-      font-size: clamp(20px, min(1.9vw, 2.9vh), 32px);
-      line-height: 1.35;
-      color: #465B6C;
+      max-width: 50%;
+      font-size: clamp(15px, min(1.1vw, 1.8vh), 18px);
+      line-height: 1.5;
+      color: #FFFFFF;
       will-change: transform, opacity;
     }
     .subtitle-line { display: block; white-space: nowrap; }
@@ -172,7 +171,7 @@
     /* Mid-size laptops (incl. MacBook 14" at default scaling ≈ 1512px) —
        pull header + CTA in a notch so the page feels balanced. */
     @media (max-width: 1600px) {
-      .logo svg { width: clamp(216px, 18vw, 276px); }
+      .logo svg { width: clamp(162px, 13.5vw, 207px); }
       .page    { padding: 32px; grid-template-rows: auto 1fr auto; }
       .cta {
         font-size: clamp(15px, min(1.35vw, 2.1vh), 21px);
@@ -196,88 +195,18 @@
     }
 
     @media (max-width: 720px) {
-      .footer { gap: 16px; }
-      /* Mobile: H1 doubles in size and spans full width */
+      /* Stack the footer vertically on mobile */
+      .footer { flex-direction: column; align-items: flex-start; gap: 20px; }
+      .cta { width: 100%; justify-content: space-between; }
+      /* Mobile: H1 ~doubles in size and spans full width */
       h1 { font-size: clamp(48px, 14vw, 96px); }
       .headline-wrap { width: 100%; max-width: 100%; }
       /* Smaller logo on mobile so it doesn't dominate */
-      .logo svg { width: clamp(140px, 38vw, 200px); }
+      .logo svg { width: clamp(105px, 28.5vw, 150px); }
       .page { padding: 20px; gap: 12px; }
-      /* Allow the subtitle to wrap naturally on mobile */
-      .subtitle { width: 100%; max-width: 100%; font-size: clamp(15px, 4.2vw, 20px); }
+      /* Subtitle wraps naturally on mobile */
+      .subtitle { max-width: 100%; font-size: clamp(15px, 4.2vw, 20px); }
       .subtitle-line { white-space: normal; display: inline; }
-    }
-
-    /* ─── Impression cards (floating testimonials, top-most layer) ─── */
-    .impression-card {
-      position: fixed;
-      display: flex;
-      /* 1.5× the Figma spec — all values multiplied by 1.5 for visual scale up */
-      width: 573px;
-      padding: 77.714px 60.654px 72.027px 47.387px;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 87px;
-      border-radius: 32.223px;
-      background: rgba(255, 255, 255, 0.22);
-      -webkit-backdrop-filter: blur(12.15px);
-              backdrop-filter: blur(12.15px);
-      border: 1px solid rgba(255,255,255,0.35);
-      box-shadow: 0 18px 60px rgba(0,51,90,0.20);
-      z-index: 100;
-      pointer-events: auto;
-      will-change: transform, opacity;
-      color: #00335A;
-      font-family: "DM Sans", sans-serif;
-      cursor: default;
-      top: 0; left: 0; /* GSAP drives x/y */
-    }
-    .impression-quote {
-      font-size: 28.5px;
-      line-height: 1.4;
-      font-weight: 400;
-      letter-spacing: -0.005em;
-      margin: 0;
-    }
-    .impression-meta {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .impression-name {
-      font-size: 24px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-    }
-    .impression-title {
-      font-size: 21px;
-      font-weight: 400;
-      opacity: 0.75;
-      letter-spacing: 0.01em;
-    }
-    /* Card scaling — placed AFTER the base .impression-card rule so the
-       media-query overrides actually win (CSS source order with equal
-       specificity). */
-    @media (max-width: 1600px) {
-      /* Cards 30% smaller than default full-HD values (every Figma×1.5 value × 0.7) */
-      .impression-card {
-        width: 401px;
-        padding: 54.4px 42.5px 50.4px 33.2px;
-        gap: 61px;
-        border-radius: 22.5px;
-        -webkit-backdrop-filter: blur(8.5px);
-                backdrop-filter: blur(8.5px);
-      }
-      .impression-quote { font-size: 20px; line-height: 1.4; }
-      .impression-name  { font-size: 17px; }
-      .impression-title { font-size: 15px; }
-    }
-    @media (max-width: 720px) {
-      /* Cap to 340px so the card doesn't balloon when 88vw exceeds it on tablets */
-      .impression-card { width: min(88vw, 340px); padding: 32px 24px 28px 20px; gap: 36px; border-radius: 18px; }
-      .impression-quote { font-size: 17px; line-height: 1.4; }
-      .impression-name { font-size: 15px; }
-      .impression-title { font-size: 13px; }
     }
 
 
@@ -289,7 +218,6 @@
 <body>
   <div class="bg"></div>
   <div class="grid-base"></div>
-  <div class="grid"></div>
 
   <main class="page">
     <header class="header">
@@ -440,252 +368,6 @@
       window.addEventListener('scroll', refreshBounds, { passive: true });
     }
 
-    /* ── Floating impression cards ────────────────────────────────────────
-       10 short reactions from real-feeling personas across CH / CA / USA.
-       Cards fly in from a screen edge, drift gently, then fly out the
-       opposite side. 2–3 are on screen at a time. Hover pauses the drift
-       and lifts the card slightly for closer reading. */
-    const IMPRESSIONS = [
-      // General excitement about the platform, the possibilities ahead, and
-      // where the domain is heading. No feature names. No specific cases.
-      // Mix of humble personal admissions and quiet conviction.
-
-      // Attorneys
-      { name: 'Lukas B.',   country: 'Zurich, CH',         role: 'Attorney',
-        quote: '“Felt a shift in how I’ll work next year.”' },
-      { name: 'Elena V.',   country: 'San Francisco, USA', role: 'Attorney',
-        quote: '“Walked in cautious. Walked out wanting to share it.”' },
-
-      // Divorce lawyers
-      { name: 'Camille T.', country: 'Montréal, CA',       role: 'Divorce Lawyer',
-        quote: '“Hopeful for clients in ways I haven’t been before.”' },
-      { name: 'Marc D.',    country: 'Genève, CH',         role: 'Divorce Lawyer',
-        quote: '“Something here is going to matter. I can feel it.”' },
-
-      // Legal IT
-      { name: 'Daniel O.',  country: 'Boston, USA',        role: 'Legal IT Automation Officer',
-        quote: '“This is the direction our profession needed to go.”' },
-      { name: 'Aisha P.',   country: 'Vancouver, CA',      role: 'Legal IT Automation Officer',
-        quote: '“Already imagining what our firm could become.”' },
-
-      // CEOs
-      { name: 'Sofia R.',   country: 'Basel, CH',          role: 'CEO',
-        quote: '“A glimpse of where serious legal work is heading.”' },
-      { name: 'Robert K.',  country: 'Chicago, USA',       role: 'CEO',
-        quote: '“Hard to look at the field the same way.”' },
-
-      // Investors
-      { name: 'James W.',   country: 'Toronto, CA',        role: 'Private Investor',
-        quote: '“Something rare here. The kind worth paying attention to.”' },
-      { name: 'Yann S.',    country: 'Lausanne, CH',       role: 'Private Investor',
-        quote: '“Optimistic in a way I haven’t been in years.”' },
-    ];
-
-    (function impressionStream() {
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (reduce) return;
-
-      const CARD_W = 573;          // 1.5× the Figma spec
-      const CARD_H = 420;          // rough — used for spawn math, real height self-measures
-      const ENTRY_S = 1.45;
-      const DWELL_S = 4.8;
-      const EXIT_S  = 1.55;
-      const LIFETIME_S = ENTRY_S + DWELL_S + EXIT_S;  // ≈ 7.8 s
-      // Spawn the next card at half the lifetime so two cards continuously
-      // overlap on screen — never appearing or leaving in pairs.
-      const SPAWN_OFFSET_S = LIFETIME_S * 0.5;
-      const DWELL_MS = DWELL_S * 1000;
-
-      let order = gsap.utils.shuffle([...IMPRESSIONS.keys()]);
-      let cursor = 0;
-      let alive = new Set();
-
-      function nextIndex() {
-        if (cursor >= order.length) {
-          order = gsap.utils.shuffle([...IMPRESSIONS.keys()]);
-          cursor = 0;
-        }
-        return order[cursor++];
-      }
-
-      function buildCard(data) {
-        const card = document.createElement('article');
-        card.className = 'impression-card';
-        card.innerHTML = `
-          <p class="impression-quote">${data.quote}</p>
-          <div class="impression-meta">
-            <div class="impression-name">${data.name}</div>
-            <div class="impression-title">${data.role} · ${data.country}</div>
-          </div>`;
-        return card;
-      }
-
-      function spawn() {
-        // Single-chain spawner: each call schedules its own successor at
-        // SPAWN_OFFSET_S so we always have continuous 2-card overlap.
-        gsap.delayedCall(SPAWN_OFFSET_S, spawn);
-
-        const data = IMPRESSIONS[nextIndex()];
-        const card = buildCard(data);
-        // Pre-position off-screen before measuring so it doesn't flash
-        card.style.transform = 'translate(-9999px, -9999px)';
-        document.body.appendChild(card);
-        alive.add(card);
-
-        // Cards live only on the RIGHT HALF of the viewport (vw 50%+),
-        // flying upward from below the fold to above it.
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-
-        // Measure the card's actual rendered size so spawn math respects the
-        // current breakpoint's downscaled dimensions.
-        const cardRect = card.getBoundingClientRect();
-        const realW = cardRect.width  || CARD_W;
-        const realH = cardRect.height || CARD_H;
-
-        const isMobile = vw <= 720;
-
-        // Pick a band that's free so multiple cards don't pile on top of each other.
-        // On desktop the bands are vertical positions (cards rise upward);
-        // on mobile they're vertical positions but the motion is horizontal.
-        const BANDS = isMobile
-          ? [
-              { yMin: vh * 0.30, yMax: vh * 0.42 },  // upper
-              { yMin: vh * 0.50, yMax: vh * 0.62 },  // lower
-            ]
-          : [
-              { yMin: vh * 0.02, yMax: vh * 0.22 },  // top
-              { yMin: vh * 0.30, yMax: vh * 0.50 },  // middle
-            ];
-        const usedBands = new Set();
-        alive.forEach(el => { if (el !== card && el.dataset.band) usedBands.add(+el.dataset.band); });
-        const freeBands = BANDS.map((_, i) => i).filter(i => !usedBands.has(i));
-        const bandIdx = freeBands.length
-          ? freeBands[Math.floor(Math.random() * freeBands.length)]
-          : Math.floor(Math.random() * BANDS.length);
-        card.dataset.band = bandIdx;
-        const band = BANDS[bandIdx];
-
-        let startX, startY, targetX, targetY, exitX, exitY;
-
-        if (isMobile) {
-          // ── HORIZONTAL flow: right → centre → left ──
-          const rowY = gsap.utils.random(band.yMin, band.yMax);
-          startX  = vw + 60;                                  // off right
-          startY  = rowY;
-          targetX = gsap.utils.random(vw * 0.05, Math.max(vw * 0.30, vw - realW - 16));
-          targetY = rowY + gsap.utils.random(-12, 12);
-          exitX   = -realW - 80;                              // off left
-          exitY   = rowY;
-        } else {
-          // ── VERTICAL flow: bottom → centre → top (right half only) ──
-          const rightHalfStart = vw * 0.50;
-          const rightHalfEnd   = Math.max(rightHalfStart + 20, vw - realW - 24);
-          const lane = gsap.utils.random(rightHalfStart, rightHalfEnd);
-          startX  = lane;
-          startY  = vh + 60;
-          targetX = lane + gsap.utils.random(-20, 20);
-          const baseTargetY = gsap.utils.random(band.yMin, band.yMax);
-          targetY = baseTargetY + gsap.utils.random(-vh * 0.04, vh * 0.04);
-          exitX   = lane + gsap.utils.random(-30, 30);
-          exitY   = -realH - 80;
-        }
-
-        const baseTilt  = gsap.utils.random(-10, 10);  // landing tilt
-        const enterTilt = gsap.utils.random(-14, 14);  // off-screen start tilt
-
-        gsap.set(card, {
-          x: startX,
-          y: startY,
-          rotation: enterTilt,
-          opacity: 0,
-          scale: 0.94,
-        });
-
-        // Drift during dwell — direction matches the flow axis.
-        const drift = gsap.to(card, {
-          x: isMobile ? '-=24' : 0,           // mobile bobs leftward (toward exit)
-          y: isMobile ? 0       : '-=18',     // desktop bobs upward (toward exit)
-          rotation: baseTilt + (Math.random() < 0.5 ? 1.4 : -1.4),
-          duration: gsap.utils.random(3.4, 4.4),
-          ease: 'sine.inOut',
-          yoyo: true,
-          repeat: -1,
-          paused: true,
-        });
-
-        const tl = gsap.timeline({
-          onComplete: () => {
-            drift.kill();
-            card.remove();
-            alive.delete(card);
-          },
-        });
-
-        tl.to(card, {
-          x: targetX,
-          y: targetY,
-          rotation: baseTilt,
-          opacity: 1,
-          scale: 1,
-          duration: ENTRY_S,
-          ease: 'power3.out',
-          onComplete: () => drift.play(),
-        })
-          .to({}, { duration: DWELL_S }) // dwell while drift runs
-          .to(card, {
-            x: exitX,
-            y: exitY,
-            rotation: baseTilt + (Math.random() < 0.5 ? -10 : 10),
-            opacity: 0,
-            scale: 0.96,
-            duration: EXIT_S,
-            ease: 'power3.in',
-            onStart: () => drift.pause(),
-          });
-
-        // ── Interactivity: hover pauses drift + lifts card slightly ──
-        card.addEventListener('pointerenter', () => {
-          drift.pause();
-          gsap.to(card, { scale: 1.04, duration: 0.45, ease: 'power3.out' });
-          tl.timeScale(0.3); // slow the dwell timeline so the user can read
-        });
-        card.addEventListener('pointerleave', () => {
-          gsap.to(card, { scale: 1, duration: 0.5, ease: 'power3.out',
-            onComplete: () => drift.resume() });
-          tl.timeScale(1);
-        });
-      }
-
-      // Single kickoff. spawn() schedules its own successor at half the
-      // lifetime, producing a continuous overlap (each new card enters while
-      // the previous is mid-dwell) — never in synchronised pairs.
-      gsap.delayedCall(2.0, spawn);
-    })();
-
-    /* ── Cursor-reactive grid ── */
-    (function cursorGrid() {
-      const root = document.documentElement;
-      let targetX = window.innerWidth / 2;
-      let targetY = window.innerHeight / 2;
-      let curX = targetX;
-      let curY = targetY;
-
-      window.addEventListener('mousemove', (e) => {
-        targetX = e.clientX;
-        targetY = e.clientY;
-      });
-
-      function loop() {
-        // ease toward target for buttery feel
-        curX += (targetX - curX) * 0.12;
-        curY += (targetY - curY) * 0.12;
-        root.style.setProperty('--mx', curX + 'px');
-        root.style.setProperty('--my', curY + 'px');
-        requestAnimationFrame(loop);
-      }
-      loop();
-    })();
   </script>
 </body>
 </html>
