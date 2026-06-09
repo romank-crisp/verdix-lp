@@ -51,17 +51,6 @@
       pointer-events: none;
     }
 
-    /* ─── Grid (subtle, 3% opacity baseline) ─── */
-    .grid-base {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 1;
-      background-image:
-        linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
-      background-size: var(--grid-size) var(--grid-size);
-    }
     /* ─── Layout ─── */
     .page {
       position: relative;
@@ -98,15 +87,11 @@
       font-family: "DM Sans", sans-serif;
       font-weight: 300;
       overflow-wrap: break-word;
-      /* Diagonal gradient peach → cream → light blue */
-      background: linear-gradient(110deg,
-        #FFDFCB 0%,
-        #FFF4EA 30%,
-        #FFFFFF 50%,
-        #CEEAFF 75%,
-        #A9DAFF 100%);
+      /* Per Figma spec */
+      background: linear-gradient(94deg, #FFDFCB 6.4%, #87C1F0 91.31%);
+      background-clip: text;
       -webkit-background-clip: text;
-              background-clip: text;
+      -webkit-text-fill-color: transparent;
       color: transparent;
       /* Per Figma spec: letter-spacing -8.646/172.929 ≈ -0.05em,
          line-height 157.443/172.929 ≈ 0.91 — proportional, so they scale
@@ -217,7 +202,6 @@
 </head>
 <body>
   <div class="bg"></div>
-  <div class="grid-base"></div>
 
   <main class="page">
     <header class="header">
