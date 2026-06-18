@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Verdix | Holistic Case Assessment System</title>
-  <meta name="description" content="Verdix is a secure, compliant platform that learns continuously to provide attorneys & lawyers with synthesized wisdom." />
+  <title>Verdix | Legal Intelligence For Modern Law Practice</title>
+  <meta name="description" content="Secure, Swiss-hosted, and compliant by design; Verdix brings your firm's knowledge together so you can act on it." />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -25,12 +25,19 @@
       --color-white: #FFFFFF;
       --color-blue-200: #A9DAFF;
       --grid-size: 40px;
+      --page-padding: var(--grid-size);
+      --bar-height: 118px;
+      --column-gap: clamp(22px, 3.5vw, 64px);
+      --form-bottom-offset: 96px;
+      --button-tail-offset: 21px;
+      --copy-gap: clamp(42px, 7.9vh, 82px);
+      --copy-bottom-offset: calc(var(--form-bottom-offset) + var(--button-tail-offset));
+      --control-font-size: clamp(13px, min(1.12vw, 1.75vh), 18px);
     }
 
     html, body {
       width: 100vw;
-      height: 100dvh;       /* dynamic viewport height — handles iOS URL bar */
-      overflow: hidden;
+      min-height: 100dvh;       /* dynamic viewport height — handles iOS URL bar */
       background: transparent;
       color: var(--color-white);
       font-family: "DM Sans", system-ui, -apple-system, sans-serif;
@@ -38,15 +45,18 @@
     }
     /* Fallback for browsers without dvh support */
     @supports not (height: 100dvh) {
-      html, body { height: 100vh; }
+      html, body { min-height: 100vh; }
     }
     html { background: #176CAD; }
+    body { overflow-x: hidden; }
 
-    /* ─── Solid background ─── */
+    /* ─── Image background ─── */
     .bg {
       position: fixed;
       inset: 0;
-      background: #176CAD;
+      background:
+        linear-gradient(rgba(23,108,173,0.08), rgba(23,108,173,0.08)),
+        url("assets/verdix-background.png") center / cover no-repeat;
       z-index: 0;
       pointer-events: none;
     }
@@ -56,13 +66,47 @@
       position: relative;
       z-index: 10;
       width: 100%;
-      height: 100%;
+      min-height: 100dvh;
       /* Padding is exactly 1 grid cell on every side → content starts on a grid line */
-      padding: var(--grid-size);
+      padding: 0 var(--page-padding);
       display: grid;
-      grid-template-rows: auto 1fr auto;
-      grid-template-columns: minmax(0, 1fr);   /* prevents content from forcing column wider */
-      gap: clamp(16px, 2vw, 24px);
+      grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr) var(--bar-height);
+      column-gap: var(--column-gap);
+      row-gap: 0;
+    }
+    .page::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: calc(var(--page-padding) + ((100% - (var(--page-padding) * 2) - (var(--column-gap) * 2)) * 0.4) + (var(--column-gap) / 2));
+      width: 1px;
+      height: 100%;
+      background: rgba(255,255,255,0.18);
+      pointer-events: none;
+    }
+    .page::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: calc(var(--page-padding) + ((100% - (var(--page-padding) * 2) - (var(--column-gap) * 2)) * 0.8) + (var(--column-gap) * 1.5));
+      width: 1px;
+      height: 100%;
+      background: rgba(255,255,255,0.18);
+      pointer-events: none;
+    }
+    .left-column {
+      grid-column: 1;
+      grid-row: 1;
+      min-width: 0;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: clamp(13px, 1.68vw, 20px);
+    }
+    .content-slot {
+      display: grid;
+      align-items: end;
+      padding-bottom: var(--copy-bottom-offset);
     }
 
     /* ─── Header (auto-height to fit the logo) + hairline below ─── */
@@ -70,18 +114,38 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-bottom: clamp(20px, 2.5vw, 32px);
-      border-bottom: 1px solid rgba(255,255,255,0.18);
+      position: relative;
+      height: var(--bar-height);
     }
-    .logo svg { display: block; width: clamp(135px, 13.5vw, 242px); height: auto; }
+    .header::after,
+    .page-footer::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      width: calc(100vw - (var(--page-padding) * 2));
+      height: 1px;
+      background: rgba(255,255,255,0.18);
+      pointer-events: none;
+    }
+    .header::after { bottom: 0; }
+    .logo {
+      display: flex;
+      align-items: center;
+      height: 100%;
+    }
+    .logo svg { display: block; width: clamp(95px, 9.45vw, 169px); height: auto; }
 
 
     /* ─── Headline ─── */
     .headline-wrap {
-      align-self: center;
-      width: 60vw;
-      max-width: 60vw;
+      width: min(60vw, 100%);
+      max-width: 100%;
       min-width: 0;        /* allow shrinking below intrinsic word width */
+    }
+    .copy-stack {
+      align-self: end;
+      display: grid;
+      gap: var(--copy-gap);
     }
     h1 {
       font-family: "DM Sans", sans-serif;
@@ -96,75 +160,205 @@
       /* Fluid type: scales smoothly with both width and height so it stays
          in proportion on tall narrow phones, ultrawide monitors, and short
          windows alike. */
-      font-size: clamp(28px, min(9.1vw, 15.4vh), 168px);
+      font-size: clamp(20px, min(4.35vw, 9.7vh), 106px);
       color: var(--color-white);
       white-space: pre-wrap;
     }
-    .word { display: inline-block; overflow: hidden; padding-bottom: 0.04em; }
+    .word { display: inline-block; overflow: hidden; margin-right: 0.18em; padding-right: 3px; padding-bottom: 0.16em; }
+    .word:last-child { margin-right: 0; }
     .char {
       display: inline-block;
       will-change: transform, filter, opacity;
       color: #FFFFFF;
     }
 
-    /* ─── Footer (subtitle + CTA) ─── */
+    /* ─── Text block ─── */
     .footer {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: clamp(20px, 3vw, 48px);
-      padding-top: clamp(20px, 2.5vw, 32px);
-      border-top: 1px solid rgba(255,255,255,0.18);
+      position: relative;
     }
     .subtitle {
-      max-width: 50%;
-      font-size: 28px;       /* FHD default */
+      max-width: min(760px, 100%);
+      font-size: clamp(16px, min(1.41vw, 2.18vh), 26px);
       line-height: 1.5;
       color: #FFFFFF;
       will-change: transform, opacity;
     }
-    .subtitle-line { display: block; white-space: nowrap; }
-    .cta {
+    .subtitle-line { display: block; }
+
+    /* ─── Lead form ─── */
+    .form-column {
+      grid-column: 2;
+      grid-row: 1;
+      display: grid;
+      align-items: end;
+      justify-items: center;
+      gap: clamp(20px, 2.52vw, 34px);
+      min-width: 0;
+      padding-top: var(--bar-height);
+      padding-bottom: var(--form-bottom-offset);
+    }
+    .empty-column {
+      grid-column: 3;
+      grid-row: 1;
+      min-width: 0;
+    }
+    .page-footer {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      position: relative;
+      height: var(--bar-height);
+      display: flex;
+      align-items: center;
+    }
+    .page-footer::before { top: 0; }
+    .footer-copy {
+      color: rgba(255,255,255,0.56);
+      font-family: "Inter", sans-serif;
+      font-size: 11px;
+      line-height: 1.4;
+      letter-spacing: 0.02em;
+    }
+    .lead-form {
+      width: 100%;
+      max-width: 700px;
+      display: grid;
+      gap: clamp(13px, 1.68vh, 18px);
+      will-change: transform, opacity;
+    }
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+    .field label {
+      font-family: "Inter", sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.78);
+    }
+    .field input {
+      width: 100%;
+      min-height: clamp(48px, min(4.9vw, 6.3vh), 64px);
+      border: 1px solid rgba(255,255,255,0.34);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.10);
+      color: var(--color-white);
+      font-family: "Inter", sans-serif;
+      font-size: var(--control-font-size);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      padding: 0 clamp(14px, 1.4vw, 21px);
+      outline: none;
+      transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .field input::placeholder { color: rgba(255,255,255,0.42); }
+    .field input:focus {
+      border-color: rgba(255,255,255,0.86);
+      background: rgba(255,255,255,0.15);
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.10);
+    }
+    .field input[aria-invalid="true"] {
+      border-color: var(--color-peach);
+      box-shadow: 0 0 0 4px rgba(255,223,203,0.14);
+    }
+    .field-error {
+      min-height: 13px;
+      color: var(--color-peach);
+      font-family: "Inter", sans-serif;
+      font-size: 10px;
+      line-height: 1.35;
+    }
+    .consent {
+      display: grid;
+      gap: 7px;
+    }
+    .consent-label {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 14px;
+      align-items: start;
+      color: rgba(255,255,255,0.82);
+      font-family: "Inter", sans-serif;
+      font-size: 14px;
+      line-height: 1.45;
+      cursor: pointer;
+    }
+    .consent input {
+      width: 28px;
+      height: 28px;
+      margin-top: 1px;
+      accent-color: var(--color-navy);
+      cursor: pointer;
+    }
+    .consent a {
+      color: var(--color-white);
+      text-underline-offset: 3px;
+    }
+    .consent input[aria-invalid="true"] {
+      outline: 2px solid var(--color-peach);
+      outline-offset: 2px;
+    }
+    .lead-button {
       display: inline-flex;
       align-items: center;
-      gap: 24px;
+      justify-content: space-between;
+      gap: 17px;
+      width: 100%;
       background: #00335A;
       color: var(--color-white);
       font-family: "Inter", sans-serif;
       font-weight: 700;
-      font-size: clamp(18px, min(1.6vw, 2.5vh), 25px);
-      padding: clamp(22px, min(2.4vw, 3.4vh), 36px) clamp(34px, min(3.4vw, 4.8vh), 62px);
-      border-radius: 16px;
-      text-decoration: none;
+      font-size: var(--control-font-size);
+      padding: clamp(15px, min(1.68vw, 2.38vh), 25px) clamp(24px, min(2.38vw, 3.36vh), 43px);
+      border: 0;
+      border-radius: 11px;
+      cursor: pointer;
       letter-spacing: 0.04em;
-      /* GSAP drives transform & shadow on hover; CSS handles color so we never
-         fight the engine over the same property. */
       transition: background-color 0.2s ease, box-shadow 0.3s ease;
       will-change: transform, opacity;
       box-shadow: 0 4px 16px rgba(0,51,90,0.18);
     }
-    .cta:hover { background: #002544; box-shadow: 0 8px 28px rgba(0,51,90,0.40); }
-    .cta-arrow { display: inline-block; will-change: transform; }
-    .cta-inner { display: inline-flex; align-items: center; gap: 24px; will-change: transform; }
+    .lead-button:hover { background: #002544; box-shadow: 0 8px 28px rgba(0,51,90,0.40); }
+    .lead-button:disabled { cursor: wait; opacity: 0.72; }
+    .button-arrow { display: inline-block; will-change: transform; }
+    .button-inner { display: inline-flex; align-items: center; gap: 17px; will-change: transform; }
+    .form-message {
+      display: none;
+      width: 100%;
+      max-width: 560px;
+      font-size: clamp(18px, min(2.1vw, 3.5vh), 34px);
+      line-height: 1.08;
+      color: var(--color-white);
+      opacity: 0;
+      transform: translateY(13px);
+    }
+    .form-status {
+      min-height: 15px;
+      color: var(--color-peach);
+      font-family: "Inter", sans-serif;
+      font-size: 10px;
+      line-height: 1.4;
+    }
     @media (prefers-reduced-motion: reduce) {
-      .cta { transition: background-color 0.2s ease; box-shadow: none; }
-      .cta:hover { box-shadow: none; }
+      .lead-button { transition: background-color 0.2s ease; box-shadow: none; }
+      .lead-button:hover { box-shadow: none; }
     }
 
     /* Mid-size laptops (incl. MacBook 14" at default scaling ≈ 1512px) —
-       pull header + CTA in a notch so the page feels balanced. */
+       pull header + form controls in a notch so the page feels balanced. */
     @media (max-width: 1600px) {
-      .logo svg { width: clamp(162px, 13.5vw, 207px); }
-      .page    { padding: 32px; grid-template-rows: auto 1fr auto; }
-      .cta {
-        font-size: clamp(15px, min(1.35vw, 2.1vh), 21px);
-        padding:   clamp(16px, min(1.9vw, 2.7vh), 28px)
-                   clamp(26px, min(2.7vw, 3.8vh), 50px);
-        border-radius: 14px;
-        gap: 18px;
+      .logo svg { width: clamp(113px, 9.45vw, 145px); }
+      :root { --page-padding: 32px; }
+      :root { --control-font-size: clamp(11px, min(0.945vw, 1.47vh), 15px); }
+      .lead-button {
+        font-size: clamp(11px, min(0.945vw, 1.47vh), 15px);
+        padding:   clamp(11px, min(1.33vw, 1.89vh), 20px)
+                   clamp(18px, min(1.89vw, 2.66vh), 35px);
+        border-radius: 10px;
+        gap: 13px;
       }
-      .subtitle { font-size: 22px; }   /* 14" Mac / mid-size laptops */
+      .subtitle { font-size: clamp(14px, min(1.23vw, 1.91vh), 20px); }
     }
 
     /* Below 1200px the floating cards shrink ~30% so they don't dominate
@@ -173,58 +367,126 @@
        The page headline also shrinks ~25% so the proportion stays right. */
     @media (max-width: 1600px) {
       /* Cap headline at 100px below the breakpoint */
-      h1 { font-size: clamp(22px, min(4.9vw, 8.4vh), 70px); }
+      h1 { font-size: clamp(15px, min(3.43vw, 5.88vh), 49px); }
+    }
+
+    @media (max-width: 980px) {
+      .page {
+        grid-template-columns: 1fr;
+        gap: clamp(20px, 3.5vw, 34px);
+      }
+      .page::before { display: none; }
+      .page::after { display: none; }
+      .left-column,
+      .form-column,
+      .empty-column {
+        grid-column: 1;
+      }
+      .form-column { grid-row: auto; }
+      .form-column {
+        align-items: center;
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+      .content-slot {
+        align-items: center;
+        padding-bottom: 0;
+      }
+      .copy-stack {
+        align-self: center;
+        gap: 16px;
+      }
+      .empty-column { display: none; }
     }
 
     @media (max-width: 720px) {
-      /* Stack the footer vertically on mobile */
-      .footer { flex-direction: column; align-items: flex-start; gap: 20px; }
-      .cta { width: 100%; justify-content: space-between; }
       /* Mobile: H1 ~doubles in size and spans full width */
-      h1 { font-size: clamp(34px, 9.8vw, 67px); }
+      h1 { font-size: clamp(24px, 6.86vw, 47px); }
       .headline-wrap { width: 100%; max-width: 100%; }
       /* Smaller logo on mobile so it doesn't dominate */
-      .logo svg { width: clamp(105px, 28.5vw, 150px); }
-      .page { padding: 20px; gap: 12px; }
-      /* Subtitle wraps naturally on mobile */
-      .subtitle { max-width: 100%; font-size: 18px; }   /* mobile */
-      .subtitle-line { white-space: normal; display: inline; }
+      .logo svg { width: clamp(74px, 19.95vw, 105px); }
+      :root { --page-padding: 20px; }
+      :root { --bar-height: 86px; }
+      .page { gap: 12px; }
+      .subtitle { font-size: 17px; }
+      .field input { min-height: 45px; border-radius: 8px; }
+      .lead-button { border-radius: 10px; }
     }
 
 
     /* Initial state for animation */
     .char { opacity: 0; transform: translateY(60%) scale(1.08); filter: blur(14px); }
-    .subtitle, .cta, .header { opacity: 0; }
+    .subtitle, .lead-form, .header { opacity: 0; }
   </style>
 </head>
 <body>
   <div class="bg"></div>
 
   <main class="page">
-    <header class="header">
-      <a href="/" class="logo" aria-label="Verdix">
-        <svg viewBox="0 0 161 50" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <section class="left-column">
+      <header class="header">
+        <a href="/" class="logo" aria-label="Verdix">
+          <svg viewBox="0 0 161 50" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path d="M64.4567 40L53.8704 15.0466H58.3696L66.6874 35.5008L75.043 15.0466H79.5044L68.9181 40H64.4567ZM96.656 32.0225H81.9108C82.0116 33.5096 82.604 34.6564 83.6878 35.463C84.7968 36.2696 86.2084 36.6729 87.9223 36.6729C88.8801 36.6729 89.6489 36.5847 90.2286 36.4082C90.8084 36.2066 91.2747 35.9671 91.6275 35.6899C92.0056 35.3874 92.3711 35.0975 92.724 34.8203L95.7108 37.2022C95.0555 37.8575 94.4001 38.4247 93.7448 38.9036C93.0895 39.3825 92.3081 39.7479 91.4007 40C90.4933 40.2773 89.3338 40.4159 87.9223 40.4159C85.6538 40.4159 83.7634 40 82.2511 39.1682C80.7388 38.3112 79.6045 37.1392 78.8483 35.6521C78.1174 34.1649 77.7519 32.4636 77.7519 30.5479C77.7519 28.6575 78.0796 26.9688 78.7349 25.4816C79.3903 23.9945 80.4237 22.8225 81.8352 21.9655C83.2467 21.1085 85.0867 20.68 87.3552 20.68C89.6489 20.68 91.4763 21.1085 92.8374 21.9655C94.1985 22.8225 95.1689 23.9945 95.7486 25.4816C96.3536 26.9688 96.656 28.6575 96.656 30.5479V32.0225ZM81.9486 28.771H92.4593C92.4593 27.5611 92.0308 26.5403 91.1738 25.7085C90.3421 24.8515 89.0692 24.423 87.3552 24.423C85.6664 24.423 84.3936 24.8137 83.5366 25.5951C82.7048 26.3512 82.1755 27.4099 81.9486 28.771ZM111.175 24.7633C110.973 24.7381 110.759 24.7129 110.532 24.6877C110.33 24.6625 110.103 24.6499 109.851 24.6499C108.667 24.6499 107.583 24.9901 106.6 25.6707C105.642 26.326 104.873 27.2082 104.294 28.3173C103.739 29.4263 103.462 30.6236 103.462 31.909V40.2268H99.4541V21.3227H103.462V24.7255C103.84 24.2214 104.306 23.6794 104.861 23.0997C105.415 22.4948 106.121 21.9781 106.978 21.5496C107.835 21.1211 108.919 20.9068 110.229 20.9068C110.633 20.9068 111.011 20.9194 111.364 20.9446C111.717 20.9699 112.057 21.0203 112.385 21.0959L111.175 24.7633ZM121 40.4159C118.858 40.4159 117.106 40 115.745 39.1682C114.409 38.3112 113.426 37.1392 112.796 35.6521C112.191 34.1649 111.889 32.4636 111.889 30.5479C111.889 28.6575 112.191 26.9688 112.796 25.4816C113.426 23.9945 114.409 22.8225 115.745 21.9655C117.106 21.1085 118.858 20.68 121 20.68C122.639 20.68 123.949 21.0203 124.932 21.7008C125.941 22.3562 126.709 23.1123 127.239 23.9693V12.4756H131.284V40H127.239V37.1266C126.709 37.9836 125.941 38.7523 124.932 39.4329C123.949 40.0882 122.639 40.4159 121 40.4159ZM115.934 30.5479C115.934 31.8586 116.123 32.9677 116.501 33.8751C116.879 34.7825 117.459 35.4756 118.24 35.9545C119.022 36.4334 120.005 36.6729 121.189 36.6729C122.399 36.6729 123.445 36.4334 124.328 35.9545C125.235 35.4756 125.941 34.7825 126.445 33.8751C126.949 32.9677 127.201 31.8586 127.201 30.5479C127.201 29.2625 126.949 28.166 126.445 27.2586C125.941 26.3512 125.235 25.6581 124.328 25.1792C123.445 24.6751 122.399 24.423 121.189 24.423C120.005 24.423 119.022 24.6751 118.24 25.1792C117.459 25.6581 116.879 26.3512 116.501 27.2586C116.123 28.166 115.934 29.2625 115.934 30.5479ZM138.37 21.0959V40H134.363V21.0959H138.37ZM136.404 17.92C135.774 17.92 135.232 17.6931 134.779 17.2394C134.325 16.7857 134.098 16.2312 134.098 15.5759C134.098 14.9457 134.325 14.4038 134.779 13.9501C135.232 13.4964 135.774 13.2696 136.404 13.2696C137.034 13.2696 137.576 13.4964 138.03 13.9501C138.484 14.4038 138.711 14.9457 138.711 15.5759C138.711 16.2312 138.484 16.7857 138.03 17.2394C137.576 17.6931 137.034 17.92 136.404 17.92ZM139.98 40L147.504 30.0564L140.737 21.0959H145.122L149.886 27.4099L154.65 21.0959H159.036L152.306 30.0564L159.792 40H155.368L149.886 32.7408L144.404 40H139.98Z" fill="white"/>
           <path d="M20.9767 1.08032C21.8188 1.60544 22.6224 2.17904 23.3654 2.80688C24.7221 3.69111 26.195 4.45885 27.7365 5.11548C31.1415 6.3782 35.6428 7.51607 39.2521 7.98169C39.9105 8.06286 40.4532 8.22916 40.6955 9.08618C41.361 13.4877 41.4092 17.1538 40.8068 21.6536C40.0037 27.649 37.9601 33.4443 34.3634 38.2698C34.0236 38.7256 33.6731 39.1687 33.3126 39.5999C31.1262 42.218 28.5708 44.3986 25.7775 46.2874C24.3016 47.2851 22.7595 48.202 21.1701 49.0579C20.8139 49.2121 20.4101 49.2119 20.0539 49.0579C18.4641 48.2017 16.9223 47.2851 15.4464 46.2874C12.6532 44.3987 10.0986 42.2176 7.91225 39.5999C7.55214 39.1684 7.20131 38.7253 6.86147 38.2698C3.26513 33.444 1.22017 27.649 0.417132 21.6536C-0.185662 17.1538 -0.126662 13.5433 0.539203 9.14185C0.54399 9.12224 0.779129 8.17735 1.56264 8.06274C2.3545 7.94705 8.48894 7.11606 13.4874 5.11548C13.5904 5.07733 13.6751 5.21937 13.5949 5.29419C10.915 7.77787 9.62446 11.234 9.82143 14.928C9.91915 16.759 10.328 17.7009 9.3351 19.468C8.84391 20.342 7.28994 21.9116 7.12514 22.7219C6.89183 23.8712 8.27698 24.0604 8.9601 24.5862C9.96131 25.3566 8.89894 26.1638 9.09877 27.0344C9.10657 27.0683 9.11938 27.1007 9.13588 27.1311C9.4891 27.7821 9.47099 28.061 9.56166 28.7961C9.61991 29.2657 10.5644 29.9378 10.6886 30.5393C10.8785 31.4594 10.0536 31.9804 10.6652 33.2239C11.0464 33.9988 11.6765 34.3228 12.4025 34.4163C13.6682 34.5788 15.2269 34.0392 16.2736 33.9612C18.3398 33.8071 19.7734 34.5382 20.6115 35.7444C21.6032 37.1723 21.7603 39.2663 21.1398 41.3508C20.9259 42.0679 20.2855 44.2762 20.9699 44.7053C21.592 45.095 22.3668 44.4086 23.0206 44.0745C25.432 42.8423 27.8476 40.2949 28.5695 37.8596C28.9466 36.5875 29.0046 35.449 28.8214 34.4163C28.1209 30.4718 23.9106 28.0677 20.6115 25.6213C20.3539 25.4304 20.1019 25.2386 19.8576 25.0461C14.8948 21.1423 12.1966 16.755 13.382 10.1458C13.9314 7.08276 15.6226 4.69703 17.8595 2.80688C18.6027 2.17916 19.4056 1.60536 20.2472 1.08032C20.3614 1.00257 20.4775 0.926535 20.5949 0.85376H20.63C20.7474 0.92652 20.8629 1.00259 20.9767 1.08032ZM29.7638 9.72388C29.7349 9.48224 29.3836 9.48225 29.3546 9.72388L29.1144 11.7542C28.8033 14.3747 26.7369 16.4411 24.1164 16.7522L22.0861 16.9924C21.8442 17.0212 21.8443 17.3728 22.0861 17.4016L24.1164 17.6418C26.737 17.953 28.8034 20.0202 29.1144 22.6409L29.3546 24.6702C29.3834 24.9121 29.735 24.9121 29.7638 24.6702L30.004 22.6409C30.315 20.0201 32.3814 17.9529 35.0021 17.6418L37.0324 17.4016C37.2741 17.3727 37.2741 17.0213 37.0324 16.9924L35.0021 16.7522C32.3815 16.4411 30.3151 14.3748 30.004 11.7542L29.7638 9.72388Z" fill="white"/>
-        </svg>
-      </a>
-    </header>
+          </svg>
+        </a>
+      </header>
 
-    <section class="headline-wrap">
-      <h1 data-headline>Holistic Case Assessment System</h1>
+      <section class="content-slot">
+        <div class="copy-stack">
+          <div class="headline-wrap">
+            <h1 data-headline>Legal Intelligence For Modern Law Practice</h1>
+          </div>
+          <footer class="footer">
+            <p class="subtitle">
+              <span class="subtitle-line">Secure, Swiss-hosted, and compliant by design; Verdix</span>
+              <span class="subtitle-line">brings your firm's knowledge together so you can act on it.</span>
+            </p>
+          </footer>
+        </div>
+      </section>
     </section>
 
-    <footer class="footer">
-      <p class="subtitle">
-        <span class="subtitle-line">We build secure, compliant AI-centric intelligence platform that learns continuously</span>
-        <span class="subtitle-line">to provide attorneys &amp; lawyers with synthesized wisdom.</span>
-      </p>
-      <a class="cta" href="mailto:info@verdix.ch?subject=Be%20the%20first%20to%20try%20Verdix">
-        <span class="cta-inner">
-          <span class="cta-label">BE THE FIRST TO TRY</span>
-          <span class="cta-arrow" aria-hidden="true">→</span>
-        </span>
-      </a>
+    <section class="form-column" aria-label="Contact form">
+      <form class="lead-form" novalidate data-lead-form>
+        <div class="field">
+          <label for="name">Name</label>
+          <input id="name" name="name" type="text" autocomplete="name" placeholder="Your name" required />
+          <p class="field-error" id="name-error" aria-live="polite"></p>
+        </div>
+        <div class="field">
+          <label for="email">Business email</label>
+          <input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@company.com" required />
+          <p class="field-error" id="email-error" aria-live="polite"></p>
+        </div>
+        <div class="field">
+          <label for="phone">Phone</label>
+          <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+" required />
+          <p class="field-error" id="phone-error" aria-live="polite"></p>
+        </div>
+        <div class="consent">
+          <label class="consent-label" for="privacy-consent">
+            <input id="privacy-consent" name="privacyConsent" type="checkbox" required />
+            <span>I agree that Verdix may process my submitted contact details to respond to my inquiry. I can withdraw this consent at any time by contacting Verdix at info@verdix.ch.</span>
+          </label>
+          <p class="field-error" id="privacy-consent-error" aria-live="polite"></p>
+        </div>
+        <button class="lead-button" type="submit">
+          <span class="button-inner">
+            <span class="button-label">BE THE FIRST TO TRY</span>
+            <span class="button-arrow" aria-hidden="true">→</span>
+          </span>
+        </button>
+        <p class="form-status" data-form-status aria-live="polite"></p>
+      </form>
+      <p class="form-message" data-form-message>Thank you for your interest. Our founder will contact you shortly to present the idea.</p>
+    </section>
+
+    <section class="empty-column" aria-hidden="true"></section>
+
+    <footer class="page-footer">
+      <p class="footer-copy">© 2026 Verdix. All rights reserved.</p>
     </footer>
   </main>
 
@@ -232,10 +494,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
   <script>
-    /* ── Split headline into chars wrapped in words (preserves spaces) ── */
-    (function splitHeadline() {
+    /* ── Split headline into chars wrapped in words ── */
+    function splitHeadline() {
       const h1 = document.querySelector('[data-headline]');
       const text = h1.textContent;
+      h1.setAttribute('aria-label', text);
       h1.textContent = '';
       const frag = document.createDocumentFragment();
       text.split(' ').forEach((word, wi, arr) => {
@@ -248,21 +511,12 @@
           wordEl.appendChild(c);
         });
         frag.appendChild(wordEl);
-        if (wi < arr.length - 1) {
-          const space = document.createElement('span');
-          space.className = 'word';
-          const s = document.createElement('span');
-          s.className = 'char';
-          s.innerHTML = '&nbsp;';
-          space.appendChild(s);
-          frag.appendChild(space);
-        }
       });
       h1.appendChild(frag);
-    })();
+    }
 
     /* ── GSAP intro: sequential pixelate-style reveal ── */
-    window.addEventListener('load', () => {
+    function runIntroAnimation() {
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
       tl.to('.header', { opacity: 1, duration: 0.6 })
@@ -277,76 +531,214 @@
         .fromTo('.subtitle',
           { opacity: 0, y: 24 },
           { opacity: 1, y: 0, duration: 0.7 }, '-=0.5')
-        .fromTo('.cta',
+        .fromTo('.lead-form',
           { opacity: 0, y: 24 },
-          { opacity: 1, y: 0, duration: 0.7, onComplete: enableCtaMicro }, '-=0.5');
+          { opacity: 1, y: 0, duration: 0.7, onComplete: () => {
+            enableButtonMicro();
+            alignDesktopCopy();
+          } }, '-=0.5');
+    }
+
+    function initPage() {
+      splitHeadline();
+      setupLeadForm();
+      runIntroAnimation();
+      alignDesktopCopy();
+    }
+
+    window.addEventListener('load', initPage);
+
+    function alignDesktopCopy() {
+      const root = document.documentElement;
+      const h1 = document.querySelector('h1');
+      const subtitle = document.querySelector('.subtitle');
+      const form = document.querySelector('.lead-form');
+      const button = document.querySelector('.lead-button');
+      const content = document.querySelector('.content-slot');
+
+      if (!h1 || !subtitle || !form || !button || !content) return;
+      if (window.innerWidth <= 980) {
+        root.style.removeProperty('--copy-gap');
+        root.style.removeProperty('--copy-bottom-offset');
+        return;
+      }
+
+      const h1Box = h1.getBoundingClientRect();
+      const subtitleBox = subtitle.getBoundingClientRect();
+      const formBox = form.getBoundingClientRect();
+      const buttonBox = button.getBoundingClientRect();
+      const desiredGap = buttonBox.bottom - formBox.top - h1Box.height - subtitleBox.height;
+
+      root.style.setProperty('--copy-gap', `${Math.max(18, desiredGap)}px`);
+
+      requestAnimationFrame(() => {
+        const updatedSubtitle = subtitle.getBoundingClientRect();
+        const updatedButton = button.getBoundingClientRect();
+        const currentPadding = parseFloat(getComputedStyle(content).paddingBottom) || 0;
+        const nextPadding = currentPadding + (updatedSubtitle.bottom - updatedButton.bottom);
+        root.style.setProperty('--copy-bottom-offset', `${Math.max(0, nextPadding)}px`);
+      });
+    }
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(alignDesktopCopy);
+    }
+
+    let alignCopyFrame = 0;
+    window.addEventListener('resize', () => {
+      cancelAnimationFrame(alignCopyFrame);
+      alignCopyFrame = requestAnimationFrame(alignDesktopCopy);
     });
 
-    /* ── GSAP best-practice CTA micro-interaction ──
-       Patterns applied (interaction-design + GSAP core):
-       - quickTo for high-frequency mousemove (no GC pressure, smoother)
-       - Magnetic outer translation, parallax inner translation, arrow slide
-       - power3.out on engage, elastic.out on release for a tactile snap-back
-       - press-down state on pointerdown for haptic feedback
-       - prefers-reduced-motion bypasses transforms entirely
-    */
-    function enableCtaMicro() {
+    function enableButtonMicro() {
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (reduce) return;
 
-      const cta   = document.querySelector('.cta');
-      const inner = cta.querySelector('.cta-inner');
-      const arrow = cta.querySelector('.cta-arrow');
-      if (!cta || !inner || !arrow) return;
+      const button = document.querySelector('.lead-button');
+      if (!button) return;
 
-      // Performant tweens (recommended GSAP pattern for mousemove)
-      const xTo = gsap.quickTo(cta,   'x', { duration: 0.5, ease: 'power3.out' });
-      const yTo = gsap.quickTo(cta,   'y', { duration: 0.5, ease: 'power3.out' });
-      const ixTo = gsap.quickTo(inner, 'x', { duration: 0.6, ease: 'power3.out' });
-      const iyTo = gsap.quickTo(inner, 'y', { duration: 0.6, ease: 'power3.out' });
+      const inner = button.querySelector('.button-inner');
+      const arrow = button.querySelector('.button-arrow');
+      if (!inner || !arrow) return;
 
-      const MAGNETIC_STRENGTH = 0.30; // 30% of distance to centre
-      const INNER_STRENGTH    = 0.55; // inner content drifts a bit MORE for parallax
-
-      let bounds = null;
-      const refreshBounds = () => { bounds = cta.getBoundingClientRect(); };
-
-      cta.addEventListener('pointerenter', () => {
-        refreshBounds();
-        gsap.to(arrow, { x: 10, duration: 0.45, ease: 'power3.out' });
-        gsap.to(cta,   { scale: 1.04, duration: 0.45, ease: 'power3.out' });
+      button.addEventListener('pointerenter', () => {
+        gsap.to(arrow, { x: 4, duration: 0.24, ease: 'power2.out' });
+        gsap.to(button, { y: -1, scale: 1.005, duration: 0.24, ease: 'power2.out' });
       });
 
-      cta.addEventListener('pointermove', (e) => {
-        if (!bounds) refreshBounds();
-        const cx = bounds.left + bounds.width  / 2;
-        const cy = bounds.top  + bounds.height / 2;
-        const dx = e.clientX - cx;
-        const dy = e.clientY - cy;
-        xTo(dx * MAGNETIC_STRENGTH);
-        yTo(dy * MAGNETIC_STRENGTH);
-        ixTo(dx * (INNER_STRENGTH - MAGNETIC_STRENGTH));
-        iyTo(dy * (INNER_STRENGTH - MAGNETIC_STRENGTH));
+      button.addEventListener('pointerleave', () => {
+        gsap.to(button, { y: 0, scale: 1, duration: 0.24, ease: 'power2.out' });
+        gsap.to(inner, { x: 0, y: 0, duration: 0.24, ease: 'power2.out' });
+        gsap.to(arrow, { x: 0, duration: 0.24, ease: 'power2.out' });
       });
 
-      cta.addEventListener('pointerleave', () => {
-        // Elastic snap-back — feels tactile without overshooting too much
-        gsap.to(cta,   { x: 0, y: 0, scale: 1, duration: 0.85, ease: 'elastic.out(1, 0.45)' });
-        gsap.to(inner, { x: 0, y: 0,           duration: 0.85, ease: 'elastic.out(1, 0.45)' });
-        gsap.to(arrow, { x: 0,                 duration: 0.45, ease: 'power3.out' });
+      button.addEventListener('pointerdown', () => {
+        gsap.to(button, { y: 0, scale: 0.995, duration: 0.1, ease: 'power2.out' });
+      });
+      button.addEventListener('pointerup', () => {
+        gsap.to(button, { y: -1, scale: 1.005, duration: 0.18, ease: 'power2.out' });
+      });
+    }
+
+    function setupLeadForm() {
+      const form = document.querySelector('[data-lead-form]');
+      const message = document.querySelector('[data-form-message]');
+      const status = document.querySelector('[data-form-status]');
+      if (!form || !message || !status) return;
+
+      const fields = {
+        name: form.elements.name,
+        email: form.elements.email,
+        phone: form.elements.phone,
+        privacyConsent: form.elements.privacyConsent,
+      };
+      const errors = {
+        name: document.getElementById('name-error'),
+        email: document.getElementById('email-error'),
+        phone: document.getElementById('phone-error'),
+        privacyConsent: document.getElementById('privacy-consent-error'),
+      };
+
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+      const phonePattern = /^[+]?[\d\s().-]{7,24}$/;
+
+      function setError(name, text) {
+        fields[name].setAttribute('aria-invalid', text ? 'true' : 'false');
+        fields[name].setAttribute('aria-describedby', errors[name].id);
+        errors[name].textContent = text;
+      }
+
+      function validate() {
+        const values = {
+          name: fields.name.value.trim(),
+          email: fields.email.value.trim(),
+          phone: fields.phone.value.trim(),
+          privacyConsent: fields.privacyConsent.checked,
+          consentText: 'I agree that Verdix may process my submitted contact details to respond to my inquiry. I can withdraw this consent at any time by contacting Verdix at info@verdix.ch.',
+        };
+        let valid = true;
+
+        setError('name', '');
+        setError('email', '');
+        setError('phone', '');
+        setError('privacyConsent', '');
+
+        if (values.name.length < 2) {
+          setError('name', 'Please enter your name.');
+          valid = false;
+        }
+        if (!emailPattern.test(values.email)) {
+          setError('email', 'Please enter a valid business email.');
+          valid = false;
+        }
+        const digits = values.phone.replace(/\D/g, '');
+        if (!phonePattern.test(values.phone) || digits.length < 7 || digits.length > 15) {
+          setError('phone', 'Please enter a valid phone number.');
+          valid = false;
+        }
+        if (!values.privacyConsent) {
+          setError('privacyConsent', 'Please confirm consent before submitting.');
+          valid = false;
+        }
+
+        return { valid, values };
+      }
+
+      Object.values(fields).forEach((field) => {
+        field.addEventListener(field.type === 'checkbox' ? 'change' : 'input', () => {
+          status.textContent = '';
+          if (field.getAttribute('aria-invalid') === 'true') validate();
+        });
       });
 
-      // Tactile press
-      cta.addEventListener('pointerdown', () => {
-        gsap.to(cta, { scale: 0.96, duration: 0.12, ease: 'power2.out' });
-      });
-      cta.addEventListener('pointerup', () => {
-        gsap.to(cta, { scale: 1.04, duration: 0.25, ease: 'power3.out' });
-      });
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const { valid, values } = validate();
+        if (!valid) return;
 
-      // Keep bounds fresh on resize/scroll
-      window.addEventListener('resize', refreshBounds);
-      window.addEventListener('scroll', refreshBounds, { passive: true });
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        status.textContent = '';
+
+        try {
+          if (window.location.protocol === 'file:') {
+            throw new Error('Open this page through Cloudflare Pages or the local Pages dev server to submit the form.');
+          }
+
+          const response = await fetch('/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(values),
+          });
+          const result = await response.json().catch(() => ({}));
+
+          if (!response.ok) {
+            throw new Error(result.error || 'Something went wrong. Please try again.');
+          }
+
+          if (window.gsap) {
+            gsap.to(form, {
+              opacity: 0,
+              y: -12,
+              duration: 0.35,
+              ease: 'power2.in',
+              onComplete: () => {
+                form.style.display = 'none';
+                message.style.display = 'block';
+                gsap.to(message, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' });
+              },
+            });
+          } else {
+            form.style.display = 'none';
+            message.style.display = 'block';
+            message.style.opacity = '1';
+            message.style.transform = 'translateY(0)';
+          }
+        } catch (error) {
+          status.textContent = error.message;
+          submitButton.disabled = false;
+        }
+      });
     }
 
   </script>
