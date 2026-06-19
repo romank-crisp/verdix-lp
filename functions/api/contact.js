@@ -1,5 +1,5 @@
 const RECIPIENT_EMAIL = 'info@verdix.ch';
-const FALLBACK_FROM_EMAIL = 'Verdix <onboarding@resend.dev>';
+const FALLBACK_FROM_EMAIL = 'Verdix <hello@updates.verdix.ch>';
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
