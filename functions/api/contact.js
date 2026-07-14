@@ -2,6 +2,7 @@ const RECIPIENT_EMAIL = 'info@verdix.ch';
 const FALLBACK_FROM_EMAIL = 'Verdix <hello@updates.verdix.ch>';
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const phonePattern = /^[+]?[\d\s().-]{7,24}$/;
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -21,7 +22,7 @@ function validateLead(data) {
   const lead = {
     name: clean(source.name),
     email: clean(source.email),
-    comment: clean(source.comment),
+    phone: clean(source.phone),
     privacyConsent: source.privacyConsent === true,
     consentText: clean(source.consentText),
   };
@@ -33,8 +34,9 @@ function validateLead(data) {
     return { error: 'Please enter a valid business email.' };
   }
 
-  if (lead.comment.length < 2) {
-    return { error: 'Please enter a comment.' };
+  const digits = lead.phone.replace(/\D/g, '');
+  if (!phonePattern.test(lead.phone) || digits.length < 7 || digits.length > 15) {
+    return { error: 'Please enter a valid phone number.' };
   }
   if (!lead.privacyConsent) {
     return { error: 'Please confirm consent before submitting.' };
@@ -68,7 +70,7 @@ export async function onRequestPost({ request, env }) {
     <h1>New Verdix lead</h1>
     <p><strong>Name:</strong> ${escapeHtml(lead.name)}</p>
     <p><strong>Business email:</strong> ${escapeHtml(lead.email)}</p>
-    <p><strong>Comment:</strong> ${escapeHtml(lead.comment)}</p>
+    <p><strong>Phone:</strong> ${escapeHtml(lead.phone)}</p>
     <p><strong>GDPR consent:</strong> Yes</p>
     <p><strong>Consent text:</strong> ${escapeHtml(consentText)}</p>
     <p><strong>Consented at:</strong> ${escapeHtml(consentedAt)}</p>
@@ -78,7 +80,7 @@ export async function onRequestPost({ request, env }) {
     '',
     `Name: ${lead.name}`,
     `Business email: ${lead.email}`,
-    `Comment: ${lead.comment}`,
+    `Phone: ${lead.phone}`,
     'GDPR consent: Yes',
     `Consent text: ${consentText}`,
     `Consented at: ${consentedAt}`,

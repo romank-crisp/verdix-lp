@@ -461,9 +461,9 @@
           <p class="field-error" id="email-error" aria-live="polite"></p>
         </div>
         <div class="field">
-          <label for="comment">Comment</label>
-          <input id="comment" name="comment" type="text" autocomplete="off" placeholder="Your comment" required />
-          <p class="field-error" id="comment-error" aria-live="polite"></p>
+          <label for="phone">Phone</label>
+          <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+" required />
+          <p class="field-error" id="phone-error" aria-live="polite"></p>
         </div>
         <div class="consent">
           <label class="consent-label" for="privacy-consent">
@@ -474,7 +474,7 @@
         </div>
         <button class="lead-button" type="submit">
           <span class="button-inner">
-            <span class="button-label">Contact Us</span>
+            <span class="button-label">BE THE FIRST TO TRY</span>
             <span class="button-arrow" aria-hidden="true">→</span>
           </span>
         </button>
@@ -629,17 +629,18 @@
       const fields = {
         name: form.elements.name,
         email: form.elements.email,
-        comment: form.elements.comment,
+        phone: form.elements.phone,
         privacyConsent: form.elements.privacyConsent,
       };
       const errors = {
         name: document.getElementById('name-error'),
         email: document.getElementById('email-error'),
-        comment: document.getElementById('comment-error'),
+        phone: document.getElementById('phone-error'),
         privacyConsent: document.getElementById('privacy-consent-error'),
       };
 
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+      const phonePattern = /^[+]?[\d\s().-]{7,24}$/;
 
       function setError(name, text) {
         fields[name].setAttribute('aria-invalid', text ? 'true' : 'false');
@@ -651,7 +652,7 @@
         const values = {
           name: fields.name.value.trim(),
           email: fields.email.value.trim(),
-          comment: fields.comment.value.trim(),
+          phone: fields.phone.value.trim(),
           privacyConsent: fields.privacyConsent.checked,
           consentText: 'I agree that Verdix may process my submitted contact details to respond to my inquiry. I can withdraw this consent at any time by contacting Verdix at info@verdix.ch.',
         };
@@ -659,7 +660,7 @@
 
         setError('name', '');
         setError('email', '');
-        setError('comment', '');
+        setError('phone', '');
         setError('privacyConsent', '');
 
         if (values.name.length < 2) {
@@ -670,8 +671,9 @@
           setError('email', 'Please enter a valid business email.');
           valid = false;
         }
-        if (values.comment.length < 2) {
-          setError('comment', 'Please enter a comment.');
+        const digits = values.phone.replace(/\D/g, '');
+        if (!phonePattern.test(values.phone) || digits.length < 7 || digits.length > 15) {
+          setError('phone', 'Please enter a valid phone number.');
           valid = false;
         }
         if (!values.privacyConsent) {
